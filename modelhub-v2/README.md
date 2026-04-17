@@ -65,3 +65,6 @@ Browser → EC2 (Flask API) → S3 (model files + metadata)
 
 ## Team
 Made for Cloud Computing Lab — AI/ML Engineering
+
+**Author**: Gaurav Patil (GauravPatil2515)  
+**Last Updated**: April 17, 2026
