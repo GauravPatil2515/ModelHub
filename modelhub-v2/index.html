@@ -2434,22 +2434,6 @@ function runTestPrediction(){
     }, 400);
   }
 }
-    btn.className='btn-validate validating';
-    btn.innerHTML='<div class="spinner"></div> Analysing model...';
-    vb.className='verify-box loading show';
-    document.getElementById('verifyMsg').textContent='Validating model file...';
-    setTimeout(function(){
-      vb.className='verify-box ok show';
-      document.getElementById('verifyMsg').textContent='✓ sklearn model detected · Ready to upload';
-      btn.className='btn-validate valid';
-      btn.innerHTML='<i data-lucide="check" style="width:15px;height:15px"></i> Model validated';
-      document.getElementById('aiGenBtn').style.display='inline-flex';
-      submitBtn.disabled=false;
-      showToast('Model looks valid','info','Connect EC2 for full analysis');
-      lucide.createIcons();
-    },1200);
-  }
-}
 
 // ══════════════════════════════
 // GROQ AUTO-GENERATE
