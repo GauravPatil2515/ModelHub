@@ -178,6 +178,27 @@ def predict():
 def validate_model():
     if request.method == 'OPTIONS':
         return '', 200
+    
+    # KNOWN_FEATURES: Fallback feature names for models without feature_names_in_
+    KNOWN_FEATURES = {
+        13: ['alcohol','malic_acid','ash','alcalinity_of_ash','magnesium',
+             'total_phenols','flavanoids','nonflavanoid_phenols',
+             'proanthocyanins','color_intensity','hue',
+             'od280_od315_of_diluted_wines','proline'],
+        30: ['mean_radius','mean_texture','mean_perimeter','mean_area',
+             'mean_smoothness','mean_compactness','mean_concavity',
+             'mean_concave_points','mean_symmetry','mean_fractal_dimension',
+             'radius_error','texture_error','perimeter_error','area_error',
+             'smoothness_error','compactness_error','concavity_error',
+             'concave_points_error','symmetry_error','fractal_dimension_error',
+             'worst_radius','worst_texture','worst_perimeter','worst_area',
+             'worst_smoothness','worst_compactness','worst_concavity',
+             'worst_concave_points','worst_symmetry','worst_fractal_dimension'],
+        10: ['age','sex','bmi','bp','s1','s2','s3','s4','s5','s6'],
+        5:  ['tenure','monthly_charges','total_charges','num_products','support_calls'],
+        6:  ['co','no2','o3','pm25','temperature','humidity']
+    }
+    
     try:
         f = request.files.get('file')
         if not f:
@@ -195,6 +216,10 @@ def validate_model():
         n_features    = int(getattr(model, 'n_features_in_', 0))
         feature_names = list(getattr(model, 'feature_names_in_', 
                         [f'feature_{i}' for i in range(n_features)]))
+        
+        # FIX 1: If feature names are generic, use known names for this feature count
+        if all(name.startswith('feature_') for name in feature_names):
+            feature_names = KNOWN_FEATURES.get(n_features, feature_names)
         
         # Get classes
         classes = []
@@ -220,6 +245,17 @@ def validate_model():
             except:
                 pass
         
+        
+        # FIX 1: Estimate accuracy or suggest where to find it
+        accuracy_hint = "Upload training data for exact score"
+        try:
+            if task == 'classification' and len(classes) > 0:
+                accuracy_hint = "Upload training data for exact score"
+            elif task == 'regression':
+                accuracy_hint = "R² score requires training data"
+        except:
+            pass
+        
         print(f"[validate] ✅ {model_class} ({task}) - {n_features} features, {len(classes)} classes")
         
         return jsonify({
@@ -232,7 +268,8 @@ def validate_model():
             'n_classes':       len(classes),
             'params':          params,
             'file_size_kb':    round(len(data)/1024, 1),
-            'sklearn_version': sklearn.__version__
+            'sklearn_version': sklearn.__version__,
+            'accuracy_hint':   accuracy_hint
         })
     except Exception as e:
         tb = traceback.format_exc()
