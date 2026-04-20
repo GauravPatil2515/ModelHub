@@ -1,9 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import boto3, joblib, numpy as np, json, tempfile, os, time
+import boto3, joblib, numpy as np, json, tempfile, os, time, traceback
 
 app = Flask(__name__)
-CORS(app, origins="*")
+CORS(app, 
+     origins=["https://model-hub-vert.vercel.app", "https://modelhub-9t2g.onrender.com", "http://localhost:8000", "*"],
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "OPTIONS"])
 
 S3_BUCKET = os.environ.get("S3_BUCKET_NAME", "modelhub-models-gaurav")
 s3 = boto3.client("s3", region_name="ap-south-1")
@@ -42,7 +45,7 @@ def save_metadata(data):
     )
 
 # ── routes ──
-@app.route("/")
+@app.route("/", strict_slashes=False)
 def health():
     uptime_sec = int(time.time() - START_TIME)
     h, r = divmod(uptime_sec, 3600)
@@ -62,11 +65,11 @@ def health():
         "models_cached": len(model_cache)
     })
 
-@app.route("/api/models", methods=["GET"])
+@app.route("/api/models", methods=["GET"], strict_slashes=False)
 def list_models():
     return jsonify(get_metadata())
 
-@app.route("/api/validate", methods=["POST"])
+@app.route("/api/validate", methods=["POST"], strict_slashes=False)
 def validate_model():
     file = request.files.get("file")
     if not file:
@@ -95,7 +98,7 @@ def validate_model():
         finally:
             os.unlink(f.name)
 
-@app.route("/api/upload", methods=["POST"])
+@app.route("/api/upload", methods=["POST"], strict_slashes=False)
 def upload_model():
     file = request.files.get("file")
     if not file:
@@ -132,22 +135,27 @@ def upload_model():
     save_metadata(all_models)
     return jsonify({"success": True, "model": meta})
 
-@app.route("/api/predict", methods=["POST"])
+@app.route("/api/predict", methods=["POST"], strict_slashes=False)
 def predict():
-    data = request.json or {}
-    model_id = data.get("model")
-    inp = data.get("input", {})
-    if not model_id:
-        return jsonify({"error": "model id required"}), 400
-    t0 = time.time()
     try:
+        data = request.get_json() or {}
+        model_id = data.get("model") or data.get("model_id")
+        inp = data.get("input") or data.get("features") or {}
+        
+        if not model_id:
+            return jsonify({"error": "model or model_id required"}), 400
+        if not inp:
+            return jsonify({"error": "input or features required"}), 400
+        
+        t0 = time.time()
         model = load_model(model_id)
         X = np.array(list(inp.values()), dtype=float).reshape(1, -1)
         pred = model.predict(X)[0]
         result = {
             "prediction": str(pred),
             "source": f"s3://{S3_BUCKET}/models/{model_id}.pkl",
-            "latency_ms": round((time.time() - t0) * 1000, 1)
+            "latency_ms": round((time.time() - t0) * 1000, 1),
+            "model_id": model_id
         }
         if hasattr(model, "predict_proba"):
             probs = model.predict_proba(X)[0]
@@ -167,7 +175,8 @@ def predict():
             print(f"Warning: Could not update metadata: {e}")
         return jsonify(result)
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"PREDICT ERROR: {traceback.format_exc()}")
+        return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
