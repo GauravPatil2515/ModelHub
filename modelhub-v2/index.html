@@ -1260,6 +1260,9 @@ var models = [
   },
 ];
 
+// Store seed models as fallback (shown only when disconnected)
+var seedModels = JSON.parse(JSON.stringify(models));
+
 var currentFilter='all', currentModelId=null, prevPage='gallery', apiMode='demo', isConnected=false;
 var selectedFile=null, lastUploadedId=null;
 
@@ -1780,7 +1783,11 @@ function connectToBackend(){
       isConnected=false;
       setApiStatus('offline','Unreachable');
       document.getElementById('apiHealthStrip').style.display='none';
-      showToast('Backend unreachable','error','Check EC2 IP and Security Group port 5000');
+      // Restore seed models as fallback
+      models=JSON.parse(JSON.stringify(seedModels));
+      renderHomeModels();
+      if(document.getElementById('page-gallery').classList.contains('active'))renderGallery();
+      showToast('Backend unreachable','error','Using demo models instead');
     });
 }
 
@@ -1844,9 +1851,8 @@ function fetchModelsFromBackend(){
         m.demo=function(inp){return{val:'Connect to Live API to run this model',conf:'Switch to Live mode',probs:null,meta:[{k:'model',v:m.name},{k:'source',v:m.s3_path||m.s3||'S3'}]}};
         return m;
       });
-      // Merge: backend models override seed models with same ID
-      models=models.filter(function(m){return m.source!=='demo'||!backendModels.find(function(b){return b.id===m.id})});
-      models=backendModels.concat(models);
+      // FIX: When connected to backend, ONLY show backend models (hide seed models)
+      models=backendModels;
       document.getElementById('stat-models').textContent=models.length;
       showToast('✅ Loaded '+backendModels.length+' models from backend','success');
       // Reload all UI to show backend models
