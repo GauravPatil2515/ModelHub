@@ -1543,11 +1543,14 @@ function runInference(){
   if(!m)return;
   // FIX C4: Validate all fields are filled
   var inp={};
+  var features=[];
   var allFilled=true;
   m.features.forEach(function(f){
     var el=document.getElementById('feat-'+f);
     if(!el||el.value===''){allFilled=false;}
-    if(el)inp[f]=parseFloat(el.value)||0;
+    var val=parseFloat(el.value)||0;
+    inp[f]=val;
+    features.push(val);
   });
   if(!allFilled){
     showToast('Fill all fields','error','Some inputs are empty');
@@ -1575,30 +1578,48 @@ function runInference(){
       btn.innerHTML='<i data-lucide="zap" style="width:15px;height:15px"></i> Run Model';
       return;
     }
-    // FIX A4: Use correct endpoint /api/predict not /predict
+    // FIX A4: Use correct endpoint /api/predict with new format
     var url=apiBaseUrl+'/api/predict';
-    fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:currentModelId,input:inp})})
+    fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model_id:currentModelId,features:features})})
     .then(function(r){return r.json()})
     .then(function(data){
-      // FIX B1/B2/B3: Format results based on model type
+      // Extract prediction value (handle both regression and classification)
+      var pred=(data.prediction!==undefined && data.prediction!==null) ? data.prediction : data.result;
+      
+      // Build probs array for classification models
       var probs=null;
       var conf='';
-      if(data.probabilities){
-        probs=Object.keys(data.probabilities).map(function(k){return{l:k,p:data.probabilities[k]}})
-        conf='Confidence: '+data.confidence+'%';
-      } else {
-        conf='Latency: '+(data.latency_ms||0)+'ms';
+      if(data.probabilities && m.type==='classification'){
+        if(typeof data.probabilities==='array'){
+          probs=data.probabilities.map(function(p,i){return{l:'Class '+i,p:Math.round(p*100)}});
+        } else {
+          probs=Object.keys(data.probabilities).map(function(k){
+            var val=data.probabilities[k];
+            return{l:k,p:typeof val==='number'?Math.round(val):val};
+          });
+        }
+        conf='Confidence: '+(data.confidence||Math.round(Math.max.apply(null,Object.values(data.probabilities))*100))+'%';
       }
-      // FIX B3: Format class labels properly for classification models
-      var displayVal=data.prediction;
+      
+      // Format display value based on model type
+      var displayVal=pred;
+      var classMap={'cancer':{0:'Malignant',1:'Benign'},'wine':{0:'Barolo',1:'Grignolino',2:'Barbera'},'churn':{0:'Stay',1:'Churn'}};
+      var unitMap={'aqi':' AQI','diabetes':' (score)'};
+      
       if(m.type==='classification'){
-        var classMap={'cancer':['malignant','benign'],'wine':['class_0','class_1','class_2'],'churn':['Stay','Churn']};
-        if(classMap[m.id]&&classMap[m.id][displayVal])displayVal=classMap[m.id][displayVal];
+        var idx=Math.round(pred);
+        if(classMap[m.id] && classMap[m.id][idx]!==undefined){
+          displayVal=classMap[m.id][idx];
+        }
       } else if(m.type==='regression'){
-        var unitMap={'aqi':' AQI','diabetes':' (score)'};
-        displayVal=parseFloat(data.prediction).toFixed(1)+(unitMap[m.id]||'');
+        displayVal=parseFloat(pred).toFixed(1)+(unitMap[m.id]||'');
       }
-      showResult({val:displayVal,conf:conf,probs:probs,meta:[{k:'source',v:data.source||m.s3_path||m.s3}]},data.latency_ms||0,m);
+      
+      // Use actual latency from API, fallback to elapsed
+      var latency=data.latency_ms||data.latency||(Date.now()-t0);
+      if(!conf)conf='Latency: '+Math.round(latency)+'ms';
+      
+      showResult({val:displayVal,conf:conf,probs:probs,meta:[{k:'source',v:data.source||m.s3_path||m.s3}]},latency,m);
       bumpRunCounter(currentModelId);
       btn.classList.remove('loading');
       btn.innerHTML='<i data-lucide="zap" style="width:15px;height:15px"></i> Run Model';
@@ -1637,7 +1658,8 @@ function showResult(res,elapsed,m){
       return'<div class="meta-row"><span class="meta-k">'+r.k+'</span><span class="meta-v">'+r.v+'</span></div>';
     }).join('');
   } else {mt.style.display='none';}
-  showToast('Prediction '+(apiMode==='live'?'from EC2':'simulated'),'success',(elapsed?elapsed+'ms':'')+' · '+(res.val||''));
+  var latencyStr=elapsed?(typeof elapsed==='number'?Math.round(elapsed)+'ms':elapsed):'';
+  showToast('Prediction '+(apiMode==='live'?'from backend':'simulated'),'success',latencyStr+' · '+(res.val||''));
 }
 
 function showResultError(msg){
