@@ -1,5 +1,9 @@
 {
   "version": 2,
+  "buildCommand": "",
+  "devCommand": "",
+  "installCommand": "",
+  "env": {},
   "builds": [
     {
       "src": "index.html",
@@ -8,8 +12,9 @@
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "^/(?!api)(.*)$",
       "dest": "/index.html"
     }
   ]
 }
+
