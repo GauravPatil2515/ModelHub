@@ -25,7 +25,14 @@ def get_metadata():
         obj = s3.get_object(Bucket=S3_BUCKET, Key=METADATA_KEY)
         return json.loads(obj["Body"].read())
     except:
-        return []
+        # Fallback: return hardcoded 5 models if metadata file doesn't exist
+        return [
+            {"id":"cancer","name":"Breast Cancer Detector","type":"classification","author":"Gaurav Patil","description":"Predicts breast cancer malignancy from tissue measurements","features":["mean radius","mean texture","mean perimeter","mean area","mean smoothness","mean compactness","mean concavity","mean concave points","mean symmetry","mean fractal dimension","radius error","texture error","perimeter error","area error","smoothness error","compactness error","concavity error","concave points error","symmetry error","fractal dimension error","worst radius","worst texture","worst perimeter","worst area","worst smoothness","worst compactness","worst concavity","worst concave points","worst symmetry","worst fractal dimension"],"acc":"95.6%","tags":["sklearn","gradient-boost","medical"],"s3":"s3://modelhub-models-gaurav/models/cancer.pkl","runs":0,"n_features":30},
+            {"id":"wine","name":"Wine Cultivar Classifier","type":"classification","author":"Gaurav Patil","description":"Classifies wine cultivars from chemical composition","features":["alcohol","malic_acid","ash","alkalinity","magnesium","phenols","flavanoids","nonflavanoids","proanthocyanins","color_intensity","hue","od280_od315","proline"],"acc":"100.0%","tags":["sklearn","svm","wine"],"s3":"s3://modelhub-models-gaurav/models/wine.pkl","runs":0,"n_features":13},
+            {"id":"diabetes","name":"Diabetes Progression","type":"regression","author":"Gaurav Patil","description":"Predicts diabetes disease progression from health metrics","features":["age","sex","bmi","bp","s1","s2","s3","s4","s5","s6"],"acc":"R²=0.437","tags":["sklearn","regression","medical"],"s3":"s3://modelhub-models-gaurav/models/diabetes.pkl","runs":0,"n_features":10},
+            {"id":"churn","name":"Customer Churn Predictor","type":"classification","author":"Gaurav Patil","description":"Predicts customer churn from contract and usage data","features":["tenure","monthly_charges","total_charges","contract_type","internet_service","payment_method","paperless_billing","phone_service"],"acc":"98.5%","tags":["sklearn","random-forest","business"],"s3":"s3://modelhub-models-gaurav/models/churn.pkl","runs":0,"n_features":5},
+            {"id":"aqi","name":"Air Quality Index","type":"regression","author":"Gaurav Patil","description":"Predicts AQI from air pollutant concentrations","features":["co","no2","o3","pm25","temp","humidity"],"acc":"R²=0.918","tags":["sklearn","regression","environment"],"s3":"s3://modelhub-models-gaurav/models/aqi.pkl","runs":0,"n_features":6}
+        ]
 
 def save_metadata(data):
     s3.put_object(
@@ -149,12 +156,15 @@ def predict():
                 str(c): round(float(p) * 100, 1)
                 for c, p in zip(model.classes_, probs)
             }
-        # increment run counter
-        all_models = get_metadata()
-        for m in all_models:
-            if m["id"] == model_id:
-                m["runs"] = m.get("runs", 0) + 1
-        save_metadata(all_models)
+        # increment run counter (best effort, don't crash if fails)
+        try:
+            all_models = get_metadata()
+            for m in all_models:
+                if m["id"] == model_id:
+                    m["runs"] = m.get("runs", 0) + 1
+            save_metadata(all_models)
+        except Exception as e:
+            print(f"Warning: Could not update metadata: {e}")
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
