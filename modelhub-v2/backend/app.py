@@ -1,6 +1,7 @@
 import os, json, pickle, time, traceback
 import numpy as np
 import boto3
+import sklearn
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
@@ -181,14 +182,61 @@ def validate_model():
         f = request.files.get('file')
         if not f:
             return jsonify({'error': 'No file uploaded'}), 400
-        model = pickle.loads(f.read())
-        n_features = getattr(model, 'n_features_in_', 'unknown')
+        
+        data  = f.read()
+        model = pickle.loads(data)
+        
+        # Detect task type
+        task = 'regression'
+        if hasattr(model, 'predict_proba') or hasattr(model, 'classes_'):
+            task = 'classification'
+        
+        # Get feature info
+        n_features    = int(getattr(model, 'n_features_in_', 0))
+        feature_names = list(getattr(model, 'feature_names_in_', 
+                        [f'feature_{i}' for i in range(n_features)]))
+        
+        # Get classes
+        classes = []
+        if hasattr(model, 'classes_'):
+            classes = [str(c) for c in model.classes_]
+        
+        # Get params (top 8 serializable ones)
+        params = {}
+        if hasattr(model, 'get_params'):
+            try:
+                all_params = model.get_params()
+                params = {k: str(v) for k, v in list(all_params.items())[:8] 
+                          if isinstance(v, (int, float, str, bool, type(None)))}
+            except:
+                pass
+        
+        # Get actual class name (handle Pipeline)
+        model_class = type(model).__name__
+        if model_class == 'Pipeline':
+            try:
+                last_step = model.steps[-1][1]
+                model_class = f'Pipeline → {type(last_step).__name__}'
+            except:
+                pass
+        
+        print(f"[validate] ✅ {model_class} ({task}) - {n_features} features, {len(classes)} classes")
+        
         return jsonify({
-            'valid': True,
-            'model_type': type(model).__name__,
-            'n_features': n_features
+            'valid':           True,
+            'model_class':     model_class,
+            'task':            task,
+            'n_features':      n_features,
+            'feature_names':   feature_names,
+            'classes':         classes,
+            'n_classes':       len(classes),
+            'params':          params,
+            'file_size_kb':    round(len(data)/1024, 1),
+            'sklearn_version': sklearn.__version__
         })
     except Exception as e:
+        tb = traceback.format_exc()
+        print(f"[validate] ❌ {tb}")
         return jsonify({'valid': False, 'error': str(e)}), 400
 
 @app.route('/api/upload', methods=['POST','OPTIONS'], strict_slashes=False)
