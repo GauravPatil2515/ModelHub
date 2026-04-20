@@ -1,0 +1,2355 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ModelHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+:root{
+  --syne:'Syne',sans-serif;
+  --inter:'Inter',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --t-xs:0.75rem;--t-sm:0.875rem;--t-base:1rem;--t-md:1.125rem;
+  --t-lg:1.375rem;--t-xl:1.75rem;--t-2xl:2.5rem;--t-3xl:3.75rem;
+  --s1:0.25rem;--s2:0.5rem;--s3:0.75rem;--s4:1rem;--s5:1.25rem;
+  --s6:1.5rem;--s8:2rem;--s10:2.5rem;--s12:3rem;--s16:4rem;--s20:5rem;
+  --r-sm:0.375rem;--r-md:0.625rem;--r-lg:1rem;--r-xl:1.5rem;--r-full:9999px;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+[data-theme="dark"]{
+  --bg:#080809;--bg2:#0e0f12;--surface:#111318;--s2c:#161820;
+  --border:rgba(255,255,255,0.07);--border-strong:rgba(255,255,255,0.12);
+  --text:#f0f0f2;--text-2:#9b9da8;--text-3:#4a4c58;
+  --accent:#c8ff00;--accent-dim:rgba(200,255,0,0.1);--accent-dim2:rgba(200,255,0,0.06);
+  --blue:#4d9fff;--blue-dim:rgba(77,159,255,0.1);
+  --purple:#b57bff;--purple-dim:rgba(181,123,255,0.1);
+  --pink:#ff6b9d;--pink-dim:rgba(255,107,157,0.1);
+  --green:#00e5a0;--green-dim:rgba(0,229,160,0.1);
+  --orange:#ff8c42;--orange-dim:rgba(255,140,66,0.1);
+  --sh-sm:0 1px 3px rgba(0,0,0,0.5);
+  --sh-md:0 4px 20px rgba(0,0,0,0.6);
+  --sh-lg:0 12px 48px rgba(0,0,0,0.7);
+  --sh-glow:0 0 60px rgba(200,255,0,0.08);
+}
+[data-theme="light"]{
+  --bg:#fafafa;--bg2:#f4f4f6;--surface:#ffffff;--s2c:#f9f9fb;
+  --border:rgba(0,0,0,0.07);--border-strong:rgba(0,0,0,0.12);
+  --text:#0a0a0b;--text-2:#6b6d7a;--text-3:#b8bac8;
+  --accent:#5c6b00;--accent-dim:rgba(92,107,0,0.08);--accent-dim2:rgba(92,107,0,0.04);
+  --blue:#1a6fcc;--blue-dim:rgba(26,111,204,0.08);
+  --purple:#7c3aed;--purple-dim:rgba(124,58,237,0.08);
+  --pink:#e11d6a;--pink-dim:rgba(225,29,106,0.08);
+  --green:#059669;--green-dim:rgba(5,150,105,0.08);
+  --orange:#c2410c;--orange-dim:rgba(194,65,12,0.08);
+  --sh-sm:0 1px 3px rgba(0,0,0,0.06);
+  --sh-md:0 4px 20px rgba(0,0,0,0.08);
+  --sh-lg:0 12px 48px rgba(0,0,0,0.12);
+  --sh-glow:0 0 60px rgba(92,107,0,0.06);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth;scroll-padding-top:72px}
+body{font-family:var(--inter);background:var(--bg);color:var(--text);min-height:100dvh;transition:background .25s,color .25s;overflow-x:hidden}
+::selection{background:var(--accent);color:#000}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:var(--r-sm)}
+button,a{cursor:pointer;transition:all 180ms var(--ease)}
+a{text-decoration:none;color:inherit}
+button{border:none;background:none;font:inherit;color:inherit}
+img,svg{display:block;max-width:100%}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px}
+
+/* ── NAV ── */
+.nav{
+  position:sticky;top:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 var(--s6);height:60px;
+  background:color-mix(in oklch,var(--bg) 75%,transparent);
+  backdrop-filter:blur(24px) saturate(180%);
+  border-bottom:1px solid var(--border);
+}
+.nav-brand{display:flex;align-items:center;gap:var(--s3)}
+.nav-logo{
+  width:30px;height:30px;border-radius:var(--r-md);
+  background:var(--accent);display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.nav-name{font-family:var(--syne);font-weight:800;font-size:var(--t-md);letter-spacing:-.03em}
+.nav-name em{color:var(--accent);font-style:normal}
+.nav-links{display:flex;align-items:center;gap:var(--s1)}
+.nav-link{
+  padding:var(--s2) var(--s3);border-radius:var(--r-md);
+  font-size:var(--t-sm);color:var(--text-2);font-weight:500;
+}
+.nav-link:hover,.nav-link.active{color:var(--text);background:var(--border)}
+.nav-right{display:flex;align-items:center;gap:var(--s2)}
+.icon-btn{
+  width:34px;height:34px;display:flex;align-items:center;justify-content:center;
+  border-radius:var(--r-md);border:1px solid var(--border);
+  color:var(--text-2);background:var(--surface);
+}
+.icon-btn:hover{color:var(--text);background:var(--bg2)}
+.btn-upload-nav{
+  display:flex;align-items:center;gap:var(--s2);
+  padding:var(--s2) var(--s4);
+  background:var(--accent);color:#000;
+  border-radius:var(--r-md);font-size:var(--t-sm);font-weight:700;
+  font-family:var(--syne);
+}
+.btn-upload-nav:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(200,255,0,0.3)}
+@media(max-width:640px){.nav-links{display:none}}
+
+/* ── PAGES ── */
+.page{display:none;min-height:calc(100dvh - 60px)}
+.page.active{display:block;animation:fadein .3s var(--ease)}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══════════════════════════════════════════
+   HOME PAGE
+══════════════════════════════════════════ */
+.home-hero{
+  max-width:1100px;margin:0 auto;
+  padding:var(--s20) var(--s6) var(--s16);
+  display:grid;grid-template-columns:1fr 1fr;gap:var(--s16);align-items:center;
+}
+@media(max-width:860px){.home-hero{grid-template-columns:1fr;padding-top:var(--s12)}}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:var(--s2);
+  border:1px solid var(--border-strong);border-radius:var(--r-full);
+  padding:var(--s1) var(--s3);font-size:var(--t-xs);font-weight:600;
+  color:var(--text-2);margin-bottom:var(--s6);font-family:var(--mono);
+  letter-spacing:.03em;
+}
+.hero-tag-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+.hero-h1{
+  font-family:var(--syne);font-weight:800;
+  font-size:clamp(2.4rem,5vw,4rem);
+  line-height:1.0;letter-spacing:-.04em;margin-bottom:var(--s5);
+}
+.hero-h1 .line2{color:var(--text-2)}
+.hero-h1 .hl{
+  display:inline-block;
+  background:var(--accent);color:#000;
+  padding:0 var(--s2);border-radius:var(--r-sm);
+  transform:rotate(-.5deg);
+}
+.hero-desc{
+  font-size:var(--t-md);color:var(--text-2);line-height:1.7;
+  max-width:44ch;margin-bottom:var(--s8);
+}
+.hero-actions{display:flex;gap:var(--s3);flex-wrap:wrap}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:var(--s2);
+  padding:var(--s3) var(--s6);background:var(--accent);color:#000;
+  border-radius:var(--r-lg);font-size:var(--t-sm);font-weight:700;
+  font-family:var(--syne);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(200,255,0,0.25)}
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:var(--s2);
+  padding:var(--s3) var(--s5);
+  border:1px solid var(--border-strong);border-radius:var(--r-lg);
+  font-size:var(--t-sm);font-weight:500;color:var(--text-2);
+}
+.btn-ghost:hover{color:var(--text);background:var(--surface);transform:translateY(-1px)}
+.hero-stats{display:flex;gap:var(--s8);margin-top:var(--s10)}
+.stat-num{font-family:var(--syne);font-size:var(--t-xl);font-weight:800;letter-spacing:-.03em}
+.stat-label{font-size:var(--t-xs);color:var(--text-2);margin-top:2px}
+
+/* Hero right — terminal card */
+.hero-terminal{
+  background:var(--surface);border:1px solid var(--border-strong);
+  border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--sh-lg);
+}
+.terminal-bar{
+  display:flex;align-items:center;gap:var(--s2);
+  padding:var(--s3) var(--s4);background:var(--s2c);
+  border-bottom:1px solid var(--border);
+}
+.t-dot{width:10px;height:10px;border-radius:50%}
+.t-dot.red{background:#ff5f56}.t-dot.yellow{background:#ffbd2e}.t-dot.green{background:#27c93f}
+.t-title{font-size:var(--t-xs);color:var(--text-3);font-family:var(--mono);margin-left:auto;margin-right:auto}
+.terminal-body{padding:var(--s5);font-family:var(--mono);font-size:var(--t-xs);line-height:1.9}
+.t-line{display:flex;gap:var(--s2)}
+.t-prompt{color:var(--accent);flex-shrink:0}
+.t-cmd{color:var(--text)}
+.t-out{color:var(--text-2);padding-left:var(--s4)}
+.t-out.ok{color:var(--green)}
+.t-out.dim{color:var(--text-3)}
+.t-cursor{display:inline-block;width:8px;height:1em;background:var(--accent);vertical-align:middle;animation:cursor .9s infinite}
+@keyframes cursor{0%,100%{opacity:1}50%{opacity:0}}
+.terminal-result{
+  margin:var(--s3) 0 0;
+  padding:var(--s3) var(--s4);
+  background:var(--accent-dim2);border:1px solid rgba(200,255,0,0.15);
+  border-radius:var(--r-md);
+}
+.tr-label{font-size:0.65rem;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-bottom:var(--s1)}
+.tr-val{font-size:var(--t-md);font-weight:700;font-family:var(--syne)}
+
+/* ── SECTION TITLES ── */
+.section-wrap{max-width:1100px;margin:0 auto;padding:0 var(--s6) var(--s16)}
+.section-top{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  margin-bottom:var(--s8);gap:var(--s4);flex-wrap:wrap;
+}
+.section-title{font-family:var(--syne);font-weight:800;font-size:var(--t-xl);letter-spacing:-.03em}
+.section-sub{font-size:var(--t-sm);color:var(--text-2);margin-top:var(--s1)}
+.see-all{font-size:var(--t-sm);color:var(--text-2);display:flex;align-items:center;gap:4px}
+.see-all:hover{color:var(--text)}
+
+/* ── MODEL CARDS GRID ── */
+.models-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:var(--s4)}
+.mcard{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-xl);overflow:hidden;
+  cursor:pointer;transition:all 200ms var(--ease);
+  position:relative;
+}
+.mcard:hover{border-color:var(--border-strong);transform:translateY(-3px);box-shadow:var(--sh-lg)}
+.mcard-stripe{height:3px;width:100%}
+.mcard-body{padding:var(--s5)}
+.mcard-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s4)}
+.mcard-icon{
+  width:40px;height:40px;border-radius:var(--r-md);
+  display:flex;align-items:center;justify-content:center;font-size:1.2rem;
+}
+.mcard-type{
+  font-size:0.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 8px;border-radius:var(--r-full);font-family:var(--mono);
+}
+.mcard h3{font-family:var(--syne);font-size:var(--t-md);font-weight:700;letter-spacing:-.02em;margin-bottom:var(--s2)}
+.mcard-desc{font-size:var(--t-sm);color:var(--text-2);line-height:1.55;margin-bottom:var(--s4);max-width:38ch}
+.mcard-meta{display:flex;gap:var(--s4);padding-top:var(--s4);border-top:1px solid var(--border)}
+.mcard-stat{font-size:var(--t-xs);color:var(--text-3);font-family:var(--mono);display:flex;align-items:center;gap:4px}
+.mcard-author{margin-top:var(--s3);font-size:var(--t-xs);color:var(--text-3);display:flex;align-items:center;gap:var(--s2)}
+.author-avatar{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:700;color:#000;flex-shrink:0}
+
+/* ── HOW IT WORKS ── */
+.steps-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(220px,100%),1fr));gap:var(--s4)}
+.step-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-xl);padding:var(--s6);
+  transition:all 200ms var(--ease);
+}
+.step-card:hover{border-color:var(--border-strong);transform:translateY(-2px)}
+.step-num{
+  font-family:var(--syne);font-size:var(--t-2xl);font-weight:800;
+  color:var(--border-strong);letter-spacing:-.06em;line-height:1;
+  margin-bottom:var(--s4);
+}
+.step-title{font-family:var(--syne);font-size:var(--t-md);font-weight:700;margin-bottom:var(--s2)}
+.step-desc{font-size:var(--t-sm);color:var(--text-2);line-height:1.6}
+
+/* ══════════════════════════════════════════
+   UPLOAD PAGE
+══════════════════════════════════════════ */
+.upload-wrap{max-width:720px;margin:0 auto;padding:var(--s12) var(--s6) var(--s16)}
+.upload-header{margin-bottom:var(--s10)}
+.upload-header h1{font-family:var(--syne);font-weight:800;font-size:var(--t-2xl);letter-spacing:-.04em;margin-bottom:var(--s2)}
+.upload-header p{font-size:var(--t-md);color:var(--text-2)}
+
+.drop-zone{
+  border:2px dashed var(--border-strong);border-radius:var(--r-xl);
+  padding:var(--s12) var(--s8);text-align:center;
+  cursor:pointer;transition:all 200ms var(--ease);margin-bottom:var(--s8);
+  position:relative;overflow:hidden;
+}
+.drop-zone:hover,.drop-zone.drag-over{
+  border-color:var(--accent);background:var(--accent-dim2);
+}
+.drop-icon{
+  width:52px;height:52px;border-radius:var(--r-xl);
+  background:var(--bg2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto var(--s4);color:var(--text-2);
+}
+.drop-zone h3{font-family:var(--syne);font-size:var(--t-lg);font-weight:700;margin-bottom:var(--s2)}
+.drop-zone p{font-size:var(--t-sm);color:var(--text-2)}
+.drop-zone .drop-sub{font-size:var(--t-xs);color:var(--text-3);margin-top:var(--s2);font-family:var(--mono)}
+.drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+.file-selected{
+  display:none;align-items:center;gap:var(--s4);
+  background:var(--accent-dim2);border:1px solid rgba(200,255,0,0.2);
+  border-radius:var(--r-lg);padding:var(--s4) var(--s5);margin-bottom:var(--s8);
+}
+.file-selected.show{display:flex}
+.file-icon{font-size:1.5rem}
+.file-name{font-family:var(--mono);font-size:var(--t-sm);font-weight:500;color:var(--accent)}
+.file-size{font-size:var(--t-xs);color:var(--text-3);font-family:var(--mono)}
+.file-remove{margin-left:auto;color:var(--text-3)}
+.file-remove:hover{color:var(--text)}
+
+.form-section{margin-bottom:var(--s8)}
+.form-section-title{
+  font-family:var(--syne);font-size:var(--t-base);font-weight:700;
+  margin-bottom:var(--s5);padding-bottom:var(--s3);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:var(--s2);
+}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4);margin-bottom:var(--s4)}
+@media(max-width:540px){.form-row{grid-template-columns:1fr}}
+.form-group{margin-bottom:var(--s4)}
+.form-label{
+  display:block;font-size:var(--t-xs);font-weight:600;
+  color:var(--text-2);margin-bottom:var(--s2);
+  letter-spacing:.04em;text-transform:uppercase;font-family:var(--mono);
+}
+.form-input,.form-select,.form-textarea{
+  width:100%;padding:var(--s3) var(--s4);
+  background:var(--s2c);border:1px solid var(--border-strong);
+  border-radius:var(--r-md);color:var(--text);
+  font-family:var(--inter);font-size:var(--t-sm);
+  outline:none;transition:all 180ms var(--ease);
+}
+.form-input:focus,.form-select:focus,.form-textarea:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-dim);
+}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239b9da8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+.form-select option{background:var(--s2c)}
+.form-textarea{min-height:90px;resize:vertical;line-height:1.6}
+.form-hint{font-size:var(--t-xs);color:var(--text-3);margin-top:var(--s1);font-family:var(--mono)}
+
+.tags-input-wrap{
+  display:flex;flex-wrap:wrap;gap:var(--s2);
+  padding:var(--s2);background:var(--s2c);
+  border:1px solid var(--border-strong);border-radius:var(--r-md);
+  min-height:48px;align-items:center;cursor:text;
+  transition:all 180ms var(--ease);
+}
+.tags-input-wrap:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+.tag-chip{
+  display:flex;align-items:center;gap:var(--s1);
+  background:var(--accent-dim);border:1px solid rgba(200,255,0,0.2);
+  border-radius:var(--r-full);padding:2px 10px;
+  font-size:var(--t-xs);font-weight:600;color:var(--accent);font-family:var(--mono);
+}
+.tag-chip button{display:flex;align-items:center;color:var(--accent);opacity:.6}
+.tag-chip button:hover{opacity:1}
+.tags-input{
+  border:none;background:none;outline:none;font-family:var(--inter);
+  font-size:var(--t-sm);color:var(--text);min-width:120px;flex:1;padding:var(--s1) var(--s2);
+}
+
+/* validation feedback */
+.verify-box{
+  display:none;
+  padding:var(--s4) var(--s5);border-radius:var(--r-lg);
+  margin-bottom:var(--s6);font-size:var(--t-sm);
+  font-family:var(--mono);gap:var(--s3);align-items:flex-start;
+}
+.verify-box.show{display:flex}
+.verify-box.ok{background:var(--green-dim);border:1px solid rgba(0,229,160,0.2);color:var(--green)}
+.verify-box.err{background:var(--pink-dim);border:1px solid rgba(255,107,157,0.2);color:var(--pink)}
+.verify-box.loading{background:var(--blue-dim);border:1px solid rgba(77,159,255,0.2);color:var(--blue)}
+
+.btn-submit{
+  width:100%;padding:var(--s4);
+  background:var(--accent);color:#000;
+  border-radius:var(--r-lg);font-family:var(--syne);font-size:var(--t-base);font-weight:800;
+  display:flex;align-items:center;justify-content:center;gap:var(--s3);
+  letter-spacing:-.01em;transition:all 200ms var(--ease);
+}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(200,255,0,0.25)}
+.btn-submit:disabled{opacity:.5;pointer-events:none}
+
+/* success */
+.upload-success{
+  display:none;text-align:center;
+  padding:var(--s16) var(--s8);
+}
+.upload-success.show{display:block;animation:fadein .4s var(--ease)}
+.success-icon{
+  width:72px;height:72px;border-radius:var(--r-full);
+  background:var(--green-dim);border:2px solid rgba(0,229,160,0.3);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto var(--s6);color:var(--green);
+}
+.success-h{font-family:var(--syne);font-size:var(--t-2xl);font-weight:800;letter-spacing:-.04em;margin-bottom:var(--s3)}
+.success-p{color:var(--text-2);font-size:var(--t-md);margin-bottom:var(--s8)}
+
+/* ══════════════════════════════════════════
+   GALLERY PAGE
+══════════════════════════════════════════ */
+.gallery-wrap{max-width:1100px;margin:0 auto;padding:var(--s10) var(--s6) var(--s16)}
+.gallery-header{margin-bottom:var(--s8)}
+.gallery-header h1{font-family:var(--syne);font-weight:800;font-size:var(--t-2xl);letter-spacing:-.04em;margin-bottom:var(--s2)}
+.gallery-header p{color:var(--text-2);font-size:var(--t-md)}
+.gallery-filters{
+  display:flex;gap:var(--s2);flex-wrap:wrap;
+  margin-bottom:var(--s8);padding-bottom:var(--s6);
+  border-bottom:1px solid var(--border);
+}
+.filter-chip{
+  padding:var(--s2) var(--s4);border-radius:var(--r-full);
+  font-size:var(--t-xs);font-weight:600;font-family:var(--mono);
+  border:1px solid var(--border-strong);color:var(--text-2);
+  transition:all 180ms var(--ease);
+}
+.filter-chip:hover,.filter-chip.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+.search-bar{
+  display:flex;align-items:center;gap:var(--s3);
+  padding:var(--s3) var(--s4);background:var(--surface);
+  border:1px solid var(--border-strong);border-radius:var(--r-lg);
+  margin-bottom:var(--s6);max-width:440px;
+}
+.search-bar input{border:none;background:none;outline:none;font-family:var(--inter);font-size:var(--t-sm);color:var(--text);flex:1}
+.search-bar input::placeholder{color:var(--text-3)}
+.search-bar:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+
+/* ══════════════════════════════════════════
+   MODEL CARD PAGE
+══════════════════════════════════════════ */
+.model-page-wrap{max-width:1100px;margin:0 auto;padding:var(--s8) var(--s6) var(--s16)}
+.model-page-grid{display:grid;grid-template-columns:1fr 380px;gap:var(--s8)}
+@media(max-width:860px){.model-page-grid{grid-template-columns:1fr}}
+.model-back{
+  display:inline-flex;align-items:center;gap:var(--s2);
+  font-size:var(--t-sm);color:var(--text-2);margin-bottom:var(--s6);
+}
+.model-back:hover{color:var(--text)}
+.model-header{margin-bottom:var(--s8)}
+.model-title-row{display:flex;align-items:center;gap:var(--s4);margin-bottom:var(--s4);flex-wrap:wrap}
+.model-big-icon{
+  width:56px;height:56px;border-radius:var(--r-xl);
+  display:flex;align-items:center;justify-content:center;font-size:1.75rem;
+  flex-shrink:0;
+}
+.model-page-name{font-family:var(--syne);font-size:var(--t-2xl);font-weight:800;letter-spacing:-.04em}
+.model-page-desc{font-size:var(--t-md);color:var(--text-2);line-height:1.7;margin-bottom:var(--s6);max-width:60ch}
+.model-tags{display:flex;gap:var(--s2);flex-wrap:wrap;margin-bottom:var(--s6)}
+.mtag{
+  padding:3px 10px;border-radius:var(--r-full);
+  font-size:var(--t-xs);font-weight:600;font-family:var(--mono);
+  border:1px solid var(--border-strong);color:var(--text-2);
+}
+.model-stats-row{
+  display:flex;gap:var(--s6);padding:var(--s5) 0;
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  margin-bottom:var(--s8);flex-wrap:wrap;
+}
+.mstat-val{font-family:var(--syne);font-size:var(--t-lg);font-weight:800;letter-spacing:-.03em}
+.mstat-key{font-size:var(--t-xs);color:var(--text-3);font-family:var(--mono);margin-top:2px}
+
+/* Inference panel on model page */
+.infer-panel{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-xl);overflow:hidden;position:sticky;top:80px;
+}
+.infer-panel-head{
+  padding:var(--s4) var(--s5);border-bottom:1px solid var(--border);
+  background:var(--bg2);display:flex;align-items:center;gap:var(--s2);
+}
+.infer-panel-title{font-family:var(--syne);font-size:var(--t-sm);font-weight:700;flex:1}
+.mode-pill{
+  font-size:0.65rem;font-weight:700;font-family:var(--mono);letter-spacing:.06em;
+  padding:2px 8px;border-radius:var(--r-full);text-transform:uppercase;
+}
+.mode-pill.demo{background:var(--purple-dim);color:var(--purple)}
+.mode-pill.live{background:var(--green-dim);color:var(--green)}
+.infer-body{padding:var(--s5)}
+.infer-btn{
+  width:100%;margin-top:var(--s4);
+  padding:var(--s3);background:var(--accent);color:#000;
+  border-radius:var(--r-lg);font-family:var(--syne);font-size:var(--t-sm);font-weight:800;
+  display:flex;align-items:center;justify-content:center;gap:var(--s2);
+  transition:all 200ms var(--ease);
+}
+.infer-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(200,255,0,0.2)}
+.infer-btn.loading{opacity:.6;pointer-events:none}
+
+/* Result */
+.result-area{margin-top:var(--s4)}
+.result-card{
+  padding:var(--s4);background:var(--green-dim);
+  border:1px solid rgba(0,229,160,0.2);border-radius:var(--r-lg);
+  margin-bottom:var(--s3);display:none;
+}
+.result-card.show{display:block;animation:fadein .3s var(--ease)}
+.result-card.error{background:var(--pink-dim);border-color:rgba(255,107,157,0.2)}
+.result-rlabel{font-size:0.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);font-family:var(--mono);margin-bottom:var(--s2)}
+.result-card.error .result-rlabel{color:var(--pink)}
+.result-rval{font-family:var(--syne);font-size:var(--t-xl);font-weight:800;letter-spacing:-.03em}
+.result-rconf{font-size:var(--t-xs);color:var(--text-2);margin-top:var(--s1);font-family:var(--mono)}
+.prob-bars{margin-bottom:var(--s3)}
+.prob-row{display:flex;align-items:center;gap:var(--s3);margin-bottom:var(--s2)}
+.prob-lbl{font-size:var(--t-xs);font-family:var(--mono);color:var(--text-2);min-width:90px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prob-track{flex:1;height:5px;background:var(--border);border-radius:var(--r-full);overflow:hidden}
+.prob-fill{height:100%;border-radius:var(--r-full);background:var(--accent);transition:width .7s var(--ease)}
+.prob-pct{font-size:var(--t-xs);font-family:var(--mono);color:var(--text-2);min-width:32px;text-align:right}
+.meta-table{background:var(--bg2);border-radius:var(--r-md);overflow:hidden}
+.meta-row{display:flex;justify-content:space-between;padding:var(--s2) var(--s3);border-bottom:1px solid var(--border);font-size:var(--t-xs)}
+.meta-row:last-child{border-bottom:none}
+.meta-k{color:var(--text-3);font-family:var(--mono)}
+.meta-v{color:var(--text);font-family:var(--mono);font-weight:500}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:14px;height:14px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .6s linear infinite}
+
+/* mobile */
+@media(max-width:640px){
+  .hero-stats{gap:var(--s5)}
+  .model-page-grid{grid-template-columns:1fr}
+  .infer-panel{position:static}
+}
+
+/* ── TOASTS ── */
+.toast{
+  display:flex;align-items:flex-start;gap:var(--s3);
+  width:300px;padding:var(--s3) var(--s4);
+  background:var(--surface);border:1px solid var(--border-strong);
+  border-radius:var(--r-lg);box-shadow:var(--sh-lg);
+  pointer-events:all;
+  animation:toast-in 300ms var(--ease) forwards;
+}
+.toast.removing{animation:toast-out 250ms var(--ease) forwards}
+@keyframes toast-in{
+  from{opacity:0;transform:translateX(110%)}
+  to{opacity:1;transform:translateX(0)}
+}
+@keyframes toast-out{
+  from{opacity:1;transform:translateX(0)}
+  to{opacity:0;transform:translateX(110%)}
+}
+.toast-bar{
+  width:3px;border-radius:var(--r-full);
+  flex-shrink:0;align-self:stretch;min-height:16px;
+}
+.toast.success .toast-bar{background:var(--green)}
+.toast.error   .toast-bar{background:var(--pink)}
+.toast.info    .toast-bar{background:var(--blue)}
+.toast-icon{flex-shrink:0;margin-top:1px}
+.toast.success .toast-icon{color:var(--green)}
+.toast.error   .toast-icon{color:var(--pink)}
+.toast.info    .toast-icon{color:var(--blue)}
+.toast-msg{
+  font-size:var(--t-sm);color:var(--text);
+  font-weight:500;line-height:1.4;
+}
+.toast-sub{
+  font-size:var(--t-xs);color:var(--text-2);
+  font-family:var(--mono);margin-top:2px;
+}
+
+/* ── VALIDATE BUTTON ── */
+.btn-validate{
+  width:100%;padding:var(--s3);margin-bottom:var(--s4);
+  border:1px solid var(--border-strong);border-radius:var(--r-lg);
+  font-family:var(--mono);font-size:var(--t-sm);font-weight:600;
+  color:var(--text-2);background:var(--surface);
+  display:flex;align-items:center;justify-content:center;gap:var(--s2);
+  transition:all 180ms var(--ease);
+}
+.btn-validate:hover{color:var(--text);border-color:var(--accent);background:var(--accent-dim2)}
+.btn-validate.validating{opacity:.6;pointer-events:none}
+.btn-validate.valid{
+  color:var(--green);border-color:rgba(0,229,160,0.3);
+  background:var(--green-dim);pointer-events:none;
+}
+.btn-validate.invalid{
+  color:var(--pink);border-color:rgba(255,107,157,0.3);
+  background:var(--pink-dim);
+}
+
+/* ── API CONNECTION BAR ── */
+.api-bar{
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:60px;z-index:190;
+}
+.api-bar-inner{
+  max-width:1100px;margin:0 auto;
+  display:flex;align-items:center;gap:var(--s3);
+  padding:var(--s2) var(--s6);height:44px;
+}
+.api-status-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+  background:var(--text-3);
+  transition:background 300ms var(--ease);
+}
+.api-status-dot.online{background:var(--green);box-shadow:0 0 6px rgba(0,229,160,0.5)}
+.api-status-dot.offline{background:var(--pink);box-shadow:0 0 6px rgba(255,107,157,0.4)}
+.api-status-dot.loading{background:var(--blue);animation:blink 0.8s infinite}
+.api-status-text{
+  font-size:var(--t-xs);font-family:var(--mono);
+  color:var(--text-3);white-space:nowrap;min-width:90px;
+}
+.api-status-text.online{color:var(--green)}
+.api-status-text.offline{color:var(--pink)}
+.api-url-wrap{
+  flex:1;max-width:360px;
+  display:flex;align-items:center;gap:var(--s2);
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-md);padding:var(--s1) var(--s3);
+  transition:border-color 180ms var(--ease);
+}
+.api-url-wrap:focus-within{border-color:var(--accent)}
+.api-url-input{
+  border:none;background:none;outline:none;
+  font-family:var(--mono);font-size:var(--t-xs);
+  color:var(--text);width:100%;
+}
+.api-url-input::placeholder{color:var(--text-3)}
+.api-connect-btn{
+  padding:var(--s1) var(--s4);
+  background:var(--surface);border:1px solid var(--border-strong);
+  border-radius:var(--r-md);font-size:var(--t-xs);
+  font-family:var(--mono);font-weight:600;color:var(--text-2);
+  transition:all 180ms var(--ease);white-space:nowrap;
+}
+.api-connect-btn:hover{color:var(--text);background:var(--bg);border-color:var(--accent)}
+.api-connect-btn.connected{
+  background:var(--green-dim);border-color:rgba(0,229,160,0.3);color:var(--green);
+}
+.api-health-strip{
+  border-top:1px solid var(--border);
+  padding:4px var(--s6);
+  max-width:100%;
+  font-size:0.68rem;font-family:var(--mono);
+  color:var(--text-3);letter-spacing:.02em;
+  display:flex;align-items:center;gap:var(--s4);
+  overflow-x:auto;white-space:nowrap;
+}
+.api-health-strip::-webkit-scrollbar{display:none}
+.health-item{display:flex;align-items:center;gap:5px}
+.health-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0}
+@media(max-width:640px){
+  .api-bar-inner{padding:var(--s2) var(--s4);gap:var(--s2)}
+  .api-url-wrap{max-width:180px}
+  .api-status-text{display:none}
+}
+
+/* ── AI GENERATE BUTTON ── */
+.ai-gen-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:0.65rem;font-weight:700;font-family:var(--mono);
+  letter-spacing:.04em;text-transform:uppercase;
+  padding:3px 10px;border-radius:var(--r-full);
+  background:var(--purple-dim);border:1px solid rgba(181,123,255,0.3);
+  color:var(--purple);cursor:pointer;
+  transition:all 180ms var(--ease);
+}
+.ai-gen-btn:hover{background:rgba(181,123,255,0.18);box-shadow:0 0 12px rgba(181,123,255,0.2)}
+.ai-gen-btn.loading{opacity:.6;pointer-events:none}
+.ai-gen-btn i{animation:none}
+.ai-gen-btn.loading i{animation:spin .8s linear infinite}
+
+/* ── AI PREVIEW BOX ── */
+.ai-preview-box{
+  background:var(--purple-dim);
+  border:1px solid rgba(181,123,255,0.2);
+  border-radius:var(--r-xl);
+  padding:var(--s5);
+  margin-bottom:var(--s6);
+  animation:fadein .3s var(--ease);
+}
+.ai-preview-header{
+  display:flex;align-items:center;gap:var(--s2);
+  font-size:var(--t-xs);font-weight:600;font-family:var(--mono);
+  color:var(--purple);margin-bottom:var(--s4);
+  text-transform:uppercase;letter-spacing:.05em;
+}
+.ai-field-row{margin-bottom:var(--s4)}
+.ai-field-label{
+  font-size:var(--t-xs);font-weight:700;font-family:var(--mono);
+  color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;
+  margin-bottom:var(--s1);
+}
+.ai-field-value{
+  font-size:var(--t-sm);color:var(--text);line-height:1.6;
+}
+.ai-tag-row{display:flex;gap:var(--s2);flex-wrap:wrap;margin-top:var(--s2)}
+.ai-use-cases{
+  list-style:none;padding:0;margin:0;
+}
+.ai-use-cases li{
+  font-size:var(--t-sm);color:var(--text-2);
+  padding:var(--s1) 0;
+  padding-left:var(--s4);
+  position:relative;line-height:1.5;
+}
+.ai-use-cases li::before{
+  content:'→';position:absolute;left:0;color:var(--purple);font-size:.7rem;
+  top:50%;transform:translateY(-50%);
+}
+
+/* ── SKELETON LOADING ── */
+@keyframes shimmer{
+  0%{background-position:-200% 0}
+  100%{background-position:200% 0}
+}
+.skeleton-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r-xl);
+  overflow:hidden;
+  padding:var(--s5);
+  min-height:220px;
+}
+.skel{
+  background:linear-gradient(
+    90deg,
+    var(--bg2) 25%,
+    var(--surface) 50%,
+    var(--bg2) 75%
+  );
+  background-size:200% 100%;
+  animation:shimmer 1.5s ease-in-out infinite;
+  border-radius:var(--r-sm);
+}
+.skel-stripe{height:3px;width:100%;margin:-var(--s5) -var(--s5) var(--s5);border-radius:0;width:calc(100% + 2*var(--s5));margin-left:calc(-1*var(--s5));margin-top:calc(-1*var(--s5))}
+.skel-icon{width:40px;height:40px;border-radius:var(--r-md);margin-bottom:var(--s4)}
+.skel-title{height:18px;width:70%;margin-bottom:var(--s3)}
+.skel-line{height:12px;width:100%;margin-bottom:var(--s2)}
+.skel-line.short{width:55%}
+.skel-line.med{width:80%}
+.skel-footer{
+  display:flex;gap:var(--s4);
+  margin-top:var(--s4);padding-top:var(--s4);
+  border-top:1px solid var(--border);
+}
+.skel-stat{height:10px;width:48px;border-radius:var(--r-sm)}
+
+/* ── EMPTY STATE ── */
+.empty-state{
+  grid-column:1/-1;
+  display:flex;flex-direction:column;align-items:center;
+  text-align:center;padding:var(--s20) var(--s8);
+  animation:fadein .4s var(--ease);
+}
+.empty-state-icon{
+  width:64px;height:64px;border-radius:var(--r-xl);
+  background:var(--bg2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-3);margin-bottom:var(--s6);
+}
+.empty-state h3{
+  font-family:var(--syne);font-size:var(--t-lg);
+  font-weight:700;letter-spacing:-.02em;margin-bottom:var(--s2);
+}
+.empty-state p{
+  font-size:var(--t-sm);color:var(--text-2);
+  max-width:36ch;margin-bottom:var(--s6);line-height:1.6;
+}
+
+/* ── MOBILE BOTTOM TAB BAR ── */
+.mobile-tabs{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;
+  height:56px;z-index:300;
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  grid-template-columns:repeat(3,1fr);
+  align-items:center;
+}
+@media(max-width:640px){
+  .mobile-tabs{display:grid}
+  body{padding-bottom:56px}
+  .infer-panel{position:static}
+  #toastContainer{bottom:76px;right:12px}
+  .toast{width:calc(100vw - 24px);max-width:320px}
+}
+.mob-tab{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:3px;height:100%;
+  color:var(--text-3);font-size:0.6rem;font-family:var(--mono);
+  font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+  transition:color 180ms var(--ease);
+}
+.mob-tab.active{color:var(--accent)}
+.mob-tab:hover{color:var(--text-2)}
+.upload-tab{position:relative}
+.upload-tab-circle{
+  width:44px;height:44px;border-radius:50%;
+  background:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  color:#000;margin-top:-16px;
+  box-shadow:0 4px 16px rgba(200,255,0,0.3);
+  transition:transform 180ms var(--ease),box-shadow 180ms var(--ease);
+}
+.upload-tab:hover .upload-tab-circle{
+  transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(200,255,0,0.4);
+}
+.upload-tab.active .upload-tab-circle{
+  background:var(--text);
+}
+.upload-tab span{margin-top:2px}
+
+/* ── COPY CURL BUTTON ── */
+.copy-curl-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:var(--t-xs);font-family:var(--mono);font-weight:600;
+  color:var(--text-3);padding:4px 10px;
+  border:1px solid var(--border);border-radius:var(--r-md);
+  background:var(--surface);
+  transition:all 180ms var(--ease);
+  position:absolute;top:var(--s3);right:var(--s3);
+}
+.copy-curl-btn:hover{color:var(--text);border-color:var(--border-strong)}
+.copy-curl-btn.copied{color:var(--green);border-color:rgba(0,229,160,0.3);background:var(--green-dim)}
+.code-block-wrap{position:relative}
+
+/* ── SHARE BUTTON ── */
+.share-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:var(--s2) var(--s3);
+  border:1px solid var(--border);border-radius:var(--r-md);
+  font-size:var(--t-xs);color:var(--text-2);
+  font-family:var(--mono);font-weight:600;
+  transition:all 180ms var(--ease);
+}
+.share-btn:hover{color:var(--text);background:var(--surface);border-color:var(--border-strong)}
+.share-btn.copied{color:var(--green);border-color:rgba(0,229,160,0.3);background:var(--green-dim)}
+
+/* ── LIVE RUN COUNTER ── */
+.run-count-live{
+  transition:all 300ms var(--ease);
+}
+.run-count-live.bump{
+  color:var(--accent);
+  transform:scale(1.2);
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-logo">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <span class="nav-name">Model<em>Hub</em></span>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link active" href="#" onclick="showPage('home');return false">Home</a>
+    <a class="nav-link" href="#" onclick="showPage('gallery');return false">Models</a>
+    <a class="nav-link" href="#" onclick="showPage('upload');return false">Upload</a>
+  </div>
+  <div class="nav-right">
+    <button class="icon-btn" data-theme-toggle aria-label="Toggle theme">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <button class="btn-upload-nav" onclick="showPage('upload')">
+      <i data-lucide="upload" style="width:14px;height:14px"></i>
+      Upload Model
+    </button>
+  </div>
+</nav>
+
+<!-- API CONNECTION BAR -->
+<div class="api-bar" id="apiBar">
+  <div class="api-bar-inner">
+    <div class="api-status-dot" id="apiDot"></div>
+    <span class="api-status-text" id="apiStatusText">Not connected</span>
+    <div class="api-url-wrap">
+      <i data-lucide="server" style="width:13px;height:13px;color:var(--text-3);flex-shrink:0"></i>
+      <input
+        type="text"
+        class="api-url-input"
+        id="apiUrlInput"
+        placeholder="http://your-ec2-ip:5000"
+        value="http://3.109.62.81:5000"
+        onkeydown="if(event.key==='Enter')connectToBackend()"
+      />
+    </div>
+    <button class="api-connect-btn" id="apiConnectBtn" onclick="connectToBackend()">
+      Connect
+    </button>
+    <div style="width:1px;height:20px;background:var(--border);margin:0 var(--s1)"></div>
+    <i data-lucide="sparkles" style="width:13px;height:13px;color:var(--purple);flex-shrink:0"></i>
+    <input
+      type="password"
+      class="api-url-input"
+      id="groqKeyInput"
+      placeholder="Groq API key (for AI card gen)"
+      style="max-width:200px"
+    />
+  </div>
+  <div class="api-health-strip" id="apiHealthStrip" style="display:none">
+    <span id="healthText"></span>
+  </div>
+</div>
+
+<!-- ══ HOME PAGE ══ -->
+<div class="page active" id="page-home">
+
+  <div class="home-hero">
+    <div class="hero-left">
+      <div class="hero-tag"><span class="hero-tag-dot"></span>v2.0 &mdash; Now with auto-upload</div>
+      <h1 class="hero-h1">
+        Ship your<br>
+        <span class="hl">ML models.</span><br>
+        <span class="line2">Like a pro.</span>
+      </h1>
+      <p class="hero-desc">Upload any scikit-learn model, get a public inference API on AWS in seconds. No config. No headache.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="showPage('upload')">
+          <i data-lucide="upload-cloud" style="width:16px;height:16px"></i>
+          Upload a model
+        </button>
+        <button class="btn-ghost" onclick="showPage('gallery')">
+          Browse models <i data-lucide="arrow-right" style="width:14px;height:14px"></i>
+        </button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-num" id="stat-models">3</div>
+          <div class="stat-label">Models deployed</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">100%</div>
+          <div class="stat-label">Free tier</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">&lt;1s</div>
+          <div class="stat-label">Avg latency</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-terminal">
+      <div class="terminal-bar">
+        <span class="t-dot red"></span>
+        <span class="t-dot yellow"></span>
+        <span class="t-dot green"></span>
+        <span class="t-title">modelhub — inference</span>
+      </div>
+      <div class="terminal-body">
+        <div class="t-line"><span class="t-prompt">$</span><span class="t-cmd"> curl -X POST /predict \</span></div>
+        <div class="t-line"><span class="t-out"> -d '{"model":"iris","input":{</span></div>
+        <div class="t-line"><span class="t-out"> &nbsp;"sepal_length":5.1,</span></div>
+        <div class="t-line"><span class="t-out"> &nbsp;"petal_length":1.4}}' </span></div>
+        <div class="t-line" style="margin-top:8px"><span class="t-out dim"># loading from s3://modelhub-models/iris.pkl</span></div>
+        <div class="terminal-result">
+          <div class="tr-label">Prediction</div>
+          <div class="tr-val">Iris Setosa &mdash; 94.2%</div>
+        </div>
+        <div class="t-line" style="margin-top:8px"><span class="t-out ok">&#10003; 200 OK &nbsp;23ms &nbsp;EC2 us-east-1</span></div>
+        <div class="t-line"><span class="t-prompt">$</span><span class="t-cursor"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Featured models -->
+  <div class="section-wrap">
+    <div class="section-top">
+      <div>
+        <div class="section-title">Featured models</div>
+        <div class="section-sub">Click any card to open its inference playground</div>
+      </div>
+      <a href="#" class="see-all" onclick="showPage('gallery');return false">
+        View all <i data-lucide="arrow-right" style="width:14px;height:14px"></i>
+      </a>
+    </div>
+    <div class="models-grid" id="home-models-grid"></div>
+  </div>
+
+  <!-- How it works -->
+  <div class="section-wrap">
+    <div class="section-top">
+      <div>
+        <div class="section-title">How it works</div>
+        <div class="section-sub">From local model to live API in 4 steps</div>
+      </div>
+    </div>
+    <div class="steps-row">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-title">Train locally</div>
+        <div class="step-desc">Build any scikit-learn model in Colab or Kaggle. Save it with <code style="font-family:var(--mono);font-size:.8em;background:var(--bg2);padding:1px 4px;border-radius:3px">joblib.dump()</code>.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-title">Upload here</div>
+        <div class="step-desc">Drag and drop your <code style="font-family:var(--mono);font-size:.8em;background:var(--bg2);padding:1px 4px;border-radius:3px">.pkl</code> file. Fill in a short model card — name, description, tags, author.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-title">Auto-deploy</div>
+        <div class="step-desc">Backend validates the model, runs a test prediction, and auto-uploads to your S3 bucket via boto3.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">04</div>
+        <div class="step-title">Share &amp; run</div>
+        <div class="step-desc">A public model card is created instantly. Anyone can run inference from the browser or via the REST API.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ UPLOAD PAGE ══ -->
+<div class="page" id="page-upload">
+  <div class="upload-wrap">
+    <div class="upload-header">
+      <h1>Upload a model</h1>
+      <p>Drop a scikit-learn <code style="font-family:var(--mono);font-size:.9em;background:var(--bg2);padding:1px 6px;border-radius:4px">.pkl</code> file &mdash; we handle the rest.</p>
+    </div>
+
+    <div id="upload-form-area">
+      <!-- Drop zone -->
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <input type="file" id="fileInput" accept=".pkl" onchange="handleFileSelect(this)">
+        <div class="drop-icon"><i data-lucide="upload-cloud" style="width:24px;height:24px"></i></div>
+        <h3>Drop your .pkl file here</h3>
+        <p>or click to browse</p>
+        <div class="drop-sub">Supports scikit-learn models saved with joblib &bull; Max 50MB</div>
+      </div>
+
+      <!-- File selected indicator -->
+      <div class="file-selected" id="fileSelected">
+        <span class="file-icon">&#128196;</span>
+        <div>
+          <div class="file-name" id="fileName">model.pkl</div>
+          <div class="file-size" id="fileSize">0 KB</div>
+        </div>
+        <button class="file-remove" onclick="clearFile()">
+          <i data-lucide="x" style="width:16px;height:16px"></i>
+        </button>
+      </div>
+
+      <!-- Validate button -->
+      <button class="btn-validate" id="validateBtn" style="display:none" onclick="validateModel()">
+        <i data-lucide="flask-conical" style="width:15px;height:15px"></i>
+        Test Model — Detect Type &amp; Features
+      </button>
+
+      <!-- Verify box -->
+      <div class="verify-box" id="verifyBox">
+        <i data-lucide="info" style="width:16px;height:16px;flex-shrink:0"></i>
+        <span id="verifyMsg"></span>
+      </div>
+
+      <!-- Form -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <i data-lucide="file-text" style="width:16px;height:16px;color:var(--text-2)"></i>
+          Model Card
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Model Name *</label>
+            <input type="text" class="form-input" id="inp-name" placeholder="e.g. Iris Classifier">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Author *</label>
+            <input type="text" class="form-input" id="inp-author" placeholder="Your name">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" style="display:flex;align-items:center;justify-content:space-between">
+            Description *
+            <button
+              class="ai-gen-btn"
+              id="aiGenBtn"
+              onclick="generateWithGroq()"
+              style="display:none"
+              type="button"
+            >
+              <i data-lucide="sparkles" style="width:12px;height:12px"></i>
+              AI Generate
+            </button>
+          </label>
+          <textarea class="form-textarea" id="inp-desc" placeholder="What does this model do? What dataset was it trained on?"></textarea>
+        </div>
+
+        <!-- AI Generated content preview -->
+        <div class="ai-preview-box" id="aiPreviewBox" style="display:none">
+          <div class="ai-preview-header">
+            <i data-lucide="sparkles" style="width:14px;height:14px;color:var(--purple)"></i>
+            <span>AI Generated — review before submitting</span>
+            <button onclick="dismissAiPreview()" style="margin-left:auto;color:var(--text-3)">
+              <i data-lucide="x" style="width:14px;height:14px"></i>
+            </button>
+          </div>
+          <div id="aiPreviewContent"></div>
+          <div style="display:flex;gap:var(--s3);margin-top:var(--s4)">
+            <button class="btn-primary" style="font-size:var(--t-xs);padding:var(--s2) var(--s4)" onclick="applyAiContent()">
+              <i data-lucide="check" style="width:12px;height:12px"></i>
+              Apply to form
+            </button>
+            <button class="btn-ghost" style="font-size:var(--t-xs);padding:var(--s2) var(--s4)" onclick="generateWithGroq()">
+              <i data-lucide="refresh-cw" style="width:12px;height:12px"></i>
+              Regenerate
+            </button>
+            <button class="btn-ghost" style="font-size:var(--t-xs);padding:var(--s2) var(--s4)" onclick="dismissAiPreview()">
+              Dismiss
+            </button>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Task Type</label>
+            <select class="form-select" id="inp-type">
+              <option value="classification">Classification</option>
+              <option value="regression">Regression</option>
+              <option value="nlp">NLP</option>
+              <option value="clustering">Clustering</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Accuracy / Score</label>
+            <input type="text" class="form-input" id="inp-acc" placeholder="e.g. 97.2% or R²=0.91">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Feature Names (comma-separated)</label>
+          <input type="text" class="form-input" id="inp-features" placeholder="e.g. sepal_length, sepal_width, petal_length, petal_width">
+          <div class="form-hint">These become the input fields in the playground</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tags</label>
+          <div class="tags-input-wrap" id="tagsWrap" onclick="document.getElementById('tagInput').focus()">
+            <input type="text" class="tags-input" id="tagInput" placeholder="Add tag + Enter" onkeydown="handleTagKey(event)">
+          </div>
+          <div class="form-hint">Press Enter to add a tag</div>
+        </div>
+      </div>
+
+      <button class="btn-submit" id="submitBtn" onclick="submitModel()">
+        <i data-lucide="upload-cloud" style="width:18px;height:18px"></i>
+        Upload &amp; Deploy to AWS
+      </button>
+    </div>
+
+    <!-- Success screen -->
+    <div class="upload-success" id="uploadSuccess">
+      <div class="success-icon">
+        <i data-lucide="check" style="width:32px;height:32px"></i>
+      </div>
+      <div class="success-h">Model deployed!</div>
+      <p class="success-p">Your model is live on AWS S3 and ready for inference.<br>A public model card has been created.</p>
+      <div style="display:flex;gap:var(--s3);justify-content:center;flex-wrap:wrap">
+        <button class="btn-primary" id="viewCardBtn" onclick="viewNewCard()">
+          <i data-lucide="external-link" style="width:15px;height:15px"></i>
+          Open Model Card
+        </button>
+        <button class="btn-ghost" onclick="resetUpload()">Upload another</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ GALLERY PAGE ══ -->
+<div class="page" id="page-gallery">
+  <div class="gallery-wrap">
+    <div class="gallery-header">
+      <h1>All Models</h1>
+      <p>Community-deployed models running on AWS</p>
+    </div>
+    <div class="search-bar">
+      <i data-lucide="search" style="width:16px;height:16px;color:var(--text-3)"></i>
+      <input type="text" placeholder="Search models..." id="searchInput" oninput="filterModels()">
+    </div>
+    <div class="gallery-filters" id="filterBar">
+      <button class="filter-chip active" data-filter="all" onclick="setFilter(this,'all')">All</button>
+      <button class="filter-chip" data-filter="classification" onclick="setFilter(this,'classification')">Classification</button>
+      <button class="filter-chip" data-filter="regression" onclick="setFilter(this,'regression')">Regression</button>
+      <button class="filter-chip" data-filter="nlp" onclick="setFilter(this,'nlp')">NLP</button>
+    </div>
+    <div class="models-grid" id="gallery-grid"></div>
+  </div>
+</div>
+
+<!-- ══ MODEL CARD PAGE ══ -->
+<div class="page" id="page-model">
+  <div class="model-page-wrap">
+    <button class="model-back" onclick="showPage(prevPage)">
+      <i data-lucide="arrow-left" style="width:15px;height:15px"></i>
+      Back
+    </button>
+    <div class="model-page-grid">
+      <!-- Left: info -->
+      <div class="model-info" id="model-info-col"></div>
+      <!-- Right: inference -->
+      <div>
+        <div class="infer-panel">
+          <div class="infer-panel-head">
+            <span class="infer-panel-title">Inference Playground</span>
+            <span class="mode-pill demo" id="modePill">DEMO</span>
+            <button class="icon-btn" style="width:28px;height:28px;margin-left:var(--s2)" id="modeToggleBtn" onclick="toggleMode()" title="Toggle demo/live mode">
+              <i data-lucide="refresh-cw" style="width:12px;height:12px"></i>
+            </button>
+          </div>
+          <div class="infer-body">
+            <div id="infer-inputs"></div>
+            <button class="infer-btn" id="inferBtn" onclick="runInference()">
+              <i data-lucide="zap" style="width:15px;height:15px"></i>
+              Run Model
+            </button>
+            <div class="result-area">
+              <div class="result-card" id="resultCard">
+                <div class="result-rlabel">Prediction</div>
+                <div class="result-rval" id="rVal"></div>
+                <div class="result-rconf" id="rConf"></div>
+              </div>
+              <div class="prob-bars" id="probBars"></div>
+              <div class="meta-table" id="metaTable" style="display:none"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════
+// DATA
+// ══════════════════════════════
+var COLORS = {
+  classification:{stripe:'var(--blue)',icon:'var(--blue-dim)',text:'var(--blue)',badge:'var(--blue-dim)'},
+  nlp:{stripe:'var(--purple)',icon:'var(--purple-dim)',text:'var(--purple)',badge:'var(--purple-dim)'},
+  regression:{stripe:'var(--green)',icon:'var(--green-dim)',text:'var(--green)',badge:'var(--green-dim)'},
+  clustering:{stripe:'var(--orange)',icon:'var(--orange-dim)',text:'var(--orange)',badge:'var(--orange-dim)'},
+};
+var EMOJI = {classification:'&#127800;',nlp:'&#9993;',regression:'&#127968;',clustering:'&#128200;'};
+var AVATAR_COLORS = ['#c8ff00','#4d9fff','#b57bff','#ff6b9d','#00e5a0','#ff8c42'];
+
+var models = [
+  {id:'iris',name:'Iris Flower Classifier',type:'classification',
+   desc:'Predicts Iris species from petal and sepal measurements using a Random Forest. Trained on the classic UCI Iris dataset.',
+   author:'Gaurav Patil',features:['sepal_length','sepal_width','petal_length','petal_width'],
+   acc:'97.2%',tags:['sklearn','random-forest','multiclass'],
+   s3:'s3://modelhub-models/iris.pkl',runs:248,
+   demo:function(inp){
+     var pl=parseFloat(inp.petal_length||1.4),pw=parseFloat(inp.petal_width||0.2);
+     var species,probs;
+     if(pl<2.5){species='Iris Setosa';probs=[{l:'Iris Setosa',p:94},{l:'Iris Versicolor',p:4},{l:'Iris Virginica',p:2}];}
+     else if(pl<5&&pw<1.7){species='Iris Versicolor';probs=[{l:'Iris Setosa',p:3},{l:'Iris Versicolor',p:88},{l:'Iris Virginica',p:9}];}
+     else{species='Iris Virginica';probs=[{l:'Iris Setosa',p:2},{l:'Iris Versicolor',p:11},{l:'Iris Virginica',p:87}];}
+     var conf=probs.find(function(x){return x.l===species}).p;
+     return{val:species,conf:'Confidence: '+conf+'%',probs:probs,meta:[{k:'model',v:'RandomForestClassifier'},{k:'source',v:'s3://modelhub/iris.pkl'},{k:'latency',v:(30+Math.random()*60|0)+'ms'}]};
+   }
+  },
+  {id:'spam',name:'Spam Email Detector',type:'nlp',
+   desc:'Classifies email text as Spam or Not Spam using TF-IDF vectorization and a Multinomial Naive Bayes classifier.',
+   author:'Gaurav Patil',features:['text'],
+   acc:'94.5%',tags:['nlp','naive-bayes','tfidf'],
+   s3:'s3://modelhub-models/spam.pkl',runs:179,
+   demo:function(inp){
+     var t=(inp.text||'').toLowerCase();
+     var hits=['free','win','prize','click','claim','reward','congratulations','$','urgent','!!!'].filter(function(w){return t.includes(w)}).length;
+     var isSpam=hits>=2,sp=Math.min(94,Math.max(6,hits*14+(isSpam?18:0))),ha=100-sp;
+     return{val:isSpam?'Spam':'Not Spam',conf:'Confidence: '+(isSpam?sp:ha)+'%',
+       probs:[{l:'Not Spam',p:ha},{l:'Spam',p:sp}],
+       meta:[{k:'model',v:'MultinomialNB'},{k:'vocab',v:'5000 tokens'},{k:'latency',v:(15+Math.random()*40|0)+'ms'}]};
+   }
+  },
+  {id:'house',name:'House Price Predictor',type:'regression',
+   desc:'Estimates house prices from area, number of rooms, and building age. Trained on a synthetic dataset using Linear Regression.',
+   author:'Gaurav Patil',features:['area','rooms','age'],
+   acc:'R²=0.91',tags:['regression','linear','pricing'],
+   s3:'s3://modelhub-models/house.pkl',runs:91,
+   demo:function(inp){
+     var area=parseFloat(inp.area||1500),rooms=parseFloat(inp.rooms||3),age=parseFloat(inp.age||10);
+     var price=50000+(area*85)+(rooms*12000)-(age*800)+(Math.random()*4000-2000);
+     return{val:'Rs. '+(price/1000|0)+'K  (~$'+(price/83000|0)+'K)',conf:'Linear regression output',probs:null,
+       meta:[{k:'model',v:'LinearRegression'},{k:'r2',v:'0.91'},{k:'latency',v:(10+Math.random()*30|0)+'ms'}]};
+   }
+  },
+];
+
+var currentFilter='all', currentModelId=null, prevPage='gallery', apiMode='demo', isConnected=false;
+var selectedFile=null, lastUploadedId=null;
+
+// ══════════════════════════════
+// NAVIGATION
+// ══════════════════════════════
+var pageTitles = {
+  home: 'Home',
+  gallery: 'All Models',
+  upload: 'Upload Model',
+  model: 'Model Card'
+};
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.nav-link').forEach(function(l) { l.classList.remove('active'); });
+  document.getElementById('page-' + name).classList.add('active');
+  var map = { home: 'Home', gallery: 'Models', upload: 'Upload' };
+  document.querySelectorAll('.nav-link').forEach(function(l) {
+    if (l.textContent.trim() === map[name]) l.classList.add('active');
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (name === 'gallery') renderGallery();
+  if (name === 'home') renderHomeModels();
+  document.title = (pageTitles[name] || name) + ' — ModelHub';
+  updateMobileTabs(name);
+  if (name !== 'model') window.location.hash = name;
+}
+function openModel(id, from) {
+  prevPage = from || 'gallery';
+  currentModelId = id;
+  renderModelPage(id);
+  showPage('model');
+  var m = models.find(function(x) { return x.id === id; });
+  if (m) {
+    document.title = m.name + ' — ModelHub';
+    window.location.hash = 'model/' + id;
+    updateMobileTabs('upload');
+    document.querySelectorAll('.mob-tab').forEach(function(t) {
+      t.classList.remove('active');
+    });
+  }
+}
+
+// ══════════════════════════════
+// RENDER HELPERS
+// ══════════════════════════════
+function avatarColor(name){return AVATAR_COLORS[name.charCodeAt(0)%AVATAR_COLORS.length]}
+function authorInitial(name){return(name||'?')[0].toUpperCase()}
+
+function buildCard(m,from){
+  var c=COLORS[m.type]||COLORS.classification;
+  return '<div class="mcard" onclick="openModel(\''+m.id+'\',\''+from+'\')">' 
+    +'<div class="mcard-stripe" style="background:'+c.stripe+'"></div>'
+    +'<div class="mcard-body">'
+    +'<div class="mcard-top">'
+    +'<div class="mcard-icon" style="background:'+c.icon+'">'+EMOJI[m.type]+'</div>'
+    +'<span class="mcard-type" style="background:'+c.badge+';color:'+c.text+'">'+m.type+'</span>'
+    +'</div>'
+    +'<h3>'+m.name+'</h3>'
+    +'<div class="mcard-desc">'+m.desc+'</div>'
+    +'<div class="mcard-meta">'
+    +'<span class="mcard-stat"><i data-lucide="zap" style="width:11px;height:11px"></i> '+m.acc+'</span>'
+    +'<span class="mcard-stat"><i data-lucide="activity" style="width:11px;height:11px"></i> '+m.runs+' runs</span>'
+    +'<span class="mcard-stat"><i data-lucide="hard-drive" style="width:11px;height:11px"></i> S3</span>'
+    +'</div>'
+    +'<div class="mcard-author">'
+    +'<div class="author-avatar" style="background:'+avatarColor(m.author)+'">'+authorInitial(m.author)+'</div>'
+    +'<span style="font-size:var(--t-xs);color:var(--text-2)">'+m.author+'</span>'
+    +'</div>'
+    +'</div></div>';
+}
+
+function renderHomeModels() {
+  var el = document.getElementById('home-models-grid');
+  // show skeletons first
+  showSkeletons('home-models-grid', 3);
+  setTimeout(function() {
+    if (models.length === 0) {
+      el.innerHTML = buildEmptyState(
+        'No models yet',
+        'Be the first to deploy a model to this hub.',
+        'Upload a model',
+        "showPage('upload')"
+      );
+      lucide.createIcons();
+      return;
+    }
+    el.innerHTML = models.slice(0, 3).map(function(m) {
+      return buildCard(m, 'home');
+    }).join('');
+    lucide.createIcons();
+  }, 600);
+}
+
+function renderGallery() {
+  showSkeletons('gallery-grid', 6);
+  setTimeout(function() {
+    filterModels();
+  }, 300);
+}
+
+var activeFilterVal='all';
+function setFilter(btn,val){
+  activeFilterVal=val;
+  document.querySelectorAll('.filter-chip').forEach(function(c){c.classList.remove('active')});
+  btn.classList.add('active');
+  filterModels();
+}
+
+function filterModels() {
+  var q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+  var el = document.getElementById('gallery-grid');
+
+  // show skeletons
+  showSkeletons('gallery-grid', 6);
+
+  setTimeout(function() {
+    var filtered = models.filter(function(m) {
+      var matchType = activeFilterVal === 'all' || m.type === activeFilterVal;
+      var matchQ = !q
+        || (m.name || '').toLowerCase().includes(q)
+        || (m.desc || m.description || '').toLowerCase().includes(q)
+        || (m.tags || []).some(function(t) { return t.toLowerCase().includes(q); })
+        || (m.author || '').toLowerCase().includes(q);
+      return matchType && matchQ;
+    });
+
+    if (filtered.length === 0) {
+      var heading, subtext, cta, action;
+      if (q) {
+        heading = 'No results for "' + q + '"';
+        subtext = 'Try a different keyword or clear the search.';
+        cta = null; action = null;
+      } else if (activeFilterVal !== 'all') {
+        heading = 'No ' + activeFilterVal + ' models yet';
+        subtext = 'No models with this task type have been uploaded yet.';
+        cta = 'Upload one'; action = "showPage('upload')";
+      } else {
+        heading = 'No models deployed yet';
+        subtext = 'Upload the first scikit-learn model to get started.';
+        cta = 'Upload a model'; action = "showPage('upload')";
+      }
+      el.innerHTML = buildEmptyState(heading, subtext, cta, action);
+      lucide.createIcons();
+      return;
+    }
+
+    el.innerHTML = filtered.map(function(m) {
+      return buildCard(m, 'gallery');
+    }).join('');
+    lucide.createIcons();
+  }, 400);
+}
+
+function renderModelPage(id) {
+  var m = models.find(function(x) { return x.id === id; });
+  if (!m) return;
+  var c = COLORS[m.type] || COLORS.classification;
+  var features = m.features || [];
+  var inputObj = {};
+  features.forEach(function(f) { inputObj[f.trim()] = 0; });
+
+  var infoCol = document.getElementById('model-info-col');
+  infoCol.innerHTML = ''
+    + '<div class="model-header">'
+    + '<div class="model-title-row">'
+    + '<div class="model-big-icon" style="background:' + c.icon + '">' + (EMOJI[m.type] || '🤖') + '</div>'
+    + '<div class="model-page-name">' + m.name + '</div>'
+    + '<button class="share-btn" id="shareBtnEl" onclick="shareModel(\'' + m.id + '\')">'
+    + '<i data-lucide="share-2" style="width:12px;height:12px"></i> Share'
+    + '</button>'
+    + '</div>'
+    + '<div class="model-page-desc">' + (m.desc || m.description || '') + '</div>'
+    + '<div class="model-tags">' + (m.tags || []).map(function(t) {
+        return '<span class="mtag">' + t + '</span>';
+      }).join('') + '</div>'
+    + '<div class="model-stats-row">'
+    + '<div class="mstat"><div class="mstat-val">' + (m.acc || m.accuracy || 'N/A') + '</div><div class="mstat-key">Accuracy</div></div>'
+    + '<div class="mstat"><div class="mstat-val run-count-live" id="run-count-' + m.id + '">' + (m.runs || 0) + '</div><div class="mstat-key">Total runs</div></div>'
+    + '<div class="mstat"><div class="mstat-val">' + features.length + '</div><div class="mstat-key">Features</div></div>'
+    + '<div class="mstat"><div class="mstat-val">' + (m.type || 'N/A') + '</div><div class="mstat-key">Task</div></div>'
+    + '</div>'
+    + '<div style="font-size:var(--t-sm);color:var(--text-2);margin-bottom:var(--s4)">'
+    + '<strong style="color:var(--text)">Author:</strong> ' + (m.author || 'Unknown') + '</div>'
+    + '<div style="font-size:var(--t-sm);color:var(--text-2);font-family:var(--mono);margin-bottom:var(--s8)">'
+    + '<strong style="color:var(--text);font-family:var(--inter)">S3 source:</strong> '
+    + (m.s3_path || m.s3 || 'N/A') + '</div>'
+    + '</div>'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s3)">'
+    + '<div style="font-family:var(--syne);font-size:var(--t-md);font-weight:700">API Usage</div>'
+    + '<button class="copy-curl-btn" id="copyCurlBtn" onclick="copyCurl(\'' + m.id + '\',' + JSON.stringify(features) + ')">'
+    + '<i data-lucide="copy" style="width:11px;height:11px"></i> Copy'
+    + '</button>'
+    + '</div>'
+    + '<div class="code-block-wrap">'
+    + '<pre style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);'
+    + 'padding:var(--s4);font-family:var(--mono);font-size:0.7rem;line-height:1.8;'
+    + 'color:var(--text-2);overflow-x:auto;white-space:pre-wrap;word-break:break-all">'
+    + '<span style="color:var(--green)">POST</span> ' + (apiBaseUrl || 'http://YOUR-EC2-IP:5000') + '/api/predict\n'
+    + '<span style="color:var(--text-3)">Content-Type: application/json</span>\n\n'
+    + '<span style="color:var(--text-3)">' + JSON.stringify({ model: m.id, input: inputObj }, null, 2) + '</span>'
+    + '</pre>'
+    + '</div>';
+
+  // FIX C1/C3: Build inference inputs with realistic defaults per model
+  var inputsHtml = '';
+  var defaults = {
+    // Cancer (30 features)
+    'mean radius': '14', 'mean texture': '20', 'mean perimeter': '90', 'mean area': '550', 'mean smoothness': '0.1',
+    'mean compactness': '0.15', 'mean concavity': '0.05', 'mean concave points': '0.02', 'mean symmetry': '0.18', 'mean fractal dimension': '0.06',
+    'radius error': '0.4', 'texture error': '1.2', 'perimeter error': '3',  'area error': '25', 'smoothness error': '0.005',
+    'compactness error': '0.01', 'concavity error': '0.02', 'concave points error': '0.005', 'symmetry error': '0.015', 'fractal dimension error': '0.002',
+    'worst radius': '16', 'worst texture': '25', 'worst perimeter': '105', 'worst area': '700', 'worst smoothness': '0.13',
+    'worst compactness': '0.25', 'worst concavity': '0.08', 'worst concave points': '0.04', 'worst symmetry': '0.3', 'worst fractal dimension': '0.08',
+    // AQI (6 features)
+    'co': '3.5', 'no2': '45', 'o3': '80', 'pm25': '55', 'temp': '32', 'humidity': '65',
+    // Churn (5 features)
+    'tenure': '12', 'monthly_charges': '65', 'total_charges': '780', 'num_products': '2', 'support_calls': '1',
+    // Diabetes (10 features)
+    'age': '0.05', 'sex': '-0.04', 'bmi': '0.06', 'bp': '0.02', 's1': '-0.04', 's2': '-0.03', 's3': '-0.04', 's4': '-0.04', 's5': '-0.02', 's6': '-0.01',
+    // Wine (13 features)
+    'alcohol': '13', 'malic_acid': '2', 'ash': '2.3', 'alcalinity_of_ash': '16', 'magnesium': '100', 'total_phenols': '2.3', 'flavanoids': '2.6',
+    'nonflavanoid_phenols': '0.3', 'proanthocyanins': '1.6', 'color_intensity': '5.1', 'hue': '1.2', 'od280/od315_of_diluted_wines': '3', 'proline': '750'
+  };
+  features.forEach(function(f) {
+    inputsHtml += '<div class="form-group">'
+      + '<label class="form-label">' + f.replace(/_/g, ' ') + '</label>';
+    if (f === 'text') {
+      inputsHtml += '<textarea class="form-textarea" id="feat-' + f
+        + '" rows="3" placeholder="Paste text here...">Congratulations! You won a FREE prize. Click NOW!!!</textarea>';
+    } else {
+      inputsHtml += '<input type="number" class="form-input" id="feat-' + f
+        + '" value="' + (defaults[f] || '0') + '" step="0.01">';
+    }
+    inputsHtml += '</div>';
+  });
+
+  document.getElementById('infer-inputs').innerHTML = inputsHtml;
+  document.getElementById('resultCard').className = 'result-card';
+  document.getElementById('probBars').innerHTML = '';
+  document.getElementById('metaTable').style.display = 'none';
+  // FIX A2: Update mode pill color based on connection state
+  var pill=document.getElementById('modePill');
+  if(isConnected){
+    apiMode='live';
+    pill.className='mode-pill live';
+    pill.textContent='LIVE';
+  } else {
+    apiMode='demo';
+    pill.className='mode-pill demo';
+    pill.textContent='DEMO';
+  }
+  lucide.createIcons();
+}
+
+// ══════════════════════════════
+// INFERENCE
+// ══════════════════════════════
+function toggleMode(){
+  // FIX A3: Only allow LIVE mode if actually connected
+  if(apiMode==='demo'){
+    if(!isConnected){
+      showToast('Connect to EC2 first','error','Fill API URL and click Connect');
+      return;
+    }
+    apiMode='live';
+  } else {
+    apiMode='demo';
+  }
+  var pill=document.getElementById('modePill');
+  pill.className='mode-pill '+(apiMode==='demo'?'demo':'live');
+  pill.textContent=apiMode.toUpperCase();
+  // Re-render to update input defaults
+  if(currentModelId){renderModelPage(currentModelId);}
+}
+
+function runInference(){
+  var m=models.find(function(x){return x.id===currentModelId});
+  if(!m)return;
+  // FIX C4: Validate all fields are filled
+  var inp={};
+  var allFilled=true;
+  m.features.forEach(function(f){
+    var el=document.getElementById('feat-'+f);
+    if(!el||el.value===''){allFilled=false;}
+    if(el)inp[f]=parseFloat(el.value)||0;
+  });
+  if(!allFilled){
+    showToast('Fill all fields','error','Some inputs are empty');
+    return;
+  }
+  var btn=document.getElementById('inferBtn');
+  btn.classList.add('loading');
+  btn.innerHTML='<div class="spinner"></div> Running...';
+  var t0=Date.now();
+  if(apiMode==='demo'){
+    // FIX A3: DEMO mode uses mock prediction
+    setTimeout(function(){
+      var res=m.demo(inp);
+      showResult(res,Date.now()-t0,m);
+      bumpRunCounter(currentModelId);
+      btn.classList.remove('loading');
+      btn.innerHTML='<i data-lucide="zap" style="width:15px;height:15px"></i> Run Model';
+      lucide.createIcons();
+    },700+Math.random()*500);
+  } else {
+    // FIX A3: LIVE mode uses real API endpoint
+    if(!isConnected){
+      showToast('Not connected','error','Switch to Demo or connect EC2');
+      btn.classList.remove('loading');
+      btn.innerHTML='<i data-lucide="zap" style="width:15px;height:15px"></i> Run Model';
+      return;
+    }
+    // FIX A4: Use correct endpoint /api/predict not /predict
+    var url=apiBaseUrl+'/api/predict';
+    fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:currentModelId,input:inp})})
+    .then(function(r){return r.json()})
+    .then(function(data){
+      // FIX B1/B2/B3: Format results based on model type
+      var probs=null;
+      var conf='';
+      if(data.probabilities){
+        probs=Object.keys(data.probabilities).map(function(k){return{l:k,p:data.probabilities[k]}})
+        conf='Confidence: '+data.confidence+'%';
+      } else {
+        conf='Latency: '+(data.latency_ms||0)+'ms';
+      }
+      // FIX B3: Format class labels properly for classification models
+      var displayVal=data.prediction;
+      if(m.type==='classification'){
+        var classMap={'cancer':['malignant','benign'],'wine':['class_0','class_1','class_2'],'churn':['Stay','Churn']};
+        if(classMap[m.id]&&classMap[m.id][displayVal])displayVal=classMap[m.id][displayVal];
+      } else if(m.type==='regression'){
+        var unitMap={'aqi':' AQI','diabetes':' (score)'};
+        displayVal=parseFloat(data.prediction).toFixed(1)+(unitMap[m.id]||'');
+      }
+      showResult({val:displayVal,conf:conf,probs:probs,meta:[{k:'source',v:data.source||m.s3_path||m.s3}]},data.latency_ms||0,m);
+      bumpRunCounter(currentModelId);
+      btn.classList.remove('loading');
+      btn.innerHTML='<i data-lucide="zap" style="width:15px;height:15px"></i> Run Model';
+      lucide.createIcons();
+    })
+    .catch(function(e){
+      showResultError('Cannot reach backend: '+e.message);
+      btn.classList.remove('loading');
+      btn.innerHTML='<i data-lucide="zap" style="width:15px;height:15px"></i> Run Model';
+      lucide.createIcons();
+    });
+  }
+}
+
+function showResult(res,elapsed,m){
+  // FIX B1: Show mode indicator
+  var card=document.getElementById('resultCard');
+  card.className='result-card show';
+  var modeTag=apiMode==='live'&&isConnected?'<span style="font-size:0.75rem;color:var(--green);margin-left:var(--s2)">🟢 LIVE</span>':'<span style="font-size:0.75rem;color:var(--purple);margin-left:var(--s2)">⚪ DEMO</span>';
+  document.getElementById('rVal').innerHTML=res.val+modeTag;
+  document.getElementById('rConf').textContent=res.conf;
+  var barsEl=document.getElementById('probBars');
+  // FIX B2/B3: Only show probability bars for classification models
+  if(res.probs&&m&&m.type==='classification'){
+    barsEl.innerHTML=res.probs.map(function(p){
+      return'<div class="prob-row"><span class="prob-lbl">'+p.l+'</span>'
+        +'<div class="prob-track"><div class="prob-fill" style="width:0%" data-pct="'+p.p+'"></div></div>'
+        +'<span class="prob-pct">'+p.p+'%</span></div>';
+    }).join('');
+    setTimeout(function(){document.querySelectorAll('.prob-fill').forEach(function(b){b.style.width=b.dataset.pct+'%'})},80);
+  } else {barsEl.innerHTML='';}
+  var mt=document.getElementById('metaTable');
+  if(res.meta&&res.meta.length){
+    mt.style.display='block';
+    mt.innerHTML=res.meta.map(function(r){
+      return'<div class="meta-row"><span class="meta-k">'+r.k+'</span><span class="meta-v">'+r.v+'</span></div>';
+    }).join('');
+  } else {mt.style.display='none';}
+  showToast('Prediction '+(apiMode==='live'?'from EC2':'simulated'),'success',(elapsed?elapsed+'ms':'')+' · '+(res.val||''));
+}
+
+function showResultError(msg){
+  var card=document.getElementById('resultCard');
+  card.className='result-card error show';
+  document.getElementById('rVal').style.fontSize='var(--t-sm)';
+  document.getElementById('rVal').textContent=msg;
+  document.getElementById('rConf').textContent='';
+  document.getElementById('probBars').innerHTML='';
+  document.getElementById('metaTable').style.display='none';
+}
+
+// ══════════════════════════════
+// UPLOAD
+// ══════════════════════════════
+function handleFileSelect(inp){
+  var file=inp.files[0];
+  if(!file)return;
+  selectedFile=file;
+  document.getElementById('fileName').textContent=file.name;
+  document.getElementById('fileSize').textContent=(file.size/1024).toFixed(1)+' KB';
+  document.getElementById('fileSelected').className='file-selected show';
+  document.getElementById('dropZone').style.display='none';
+  document.getElementById('validateBtn').style.display='flex';
+  document.getElementById('validateBtn').className='btn-validate';
+  document.getElementById('validateBtn').innerHTML='<i data-lucide="flask-conical" style="width:15px;height:15px"></i> Test Model — Detect Type & Features';
+  document.getElementById('verifyBox').className='verify-box';
+  document.getElementById('submitBtn').disabled=true;
+  lucide.createIcons();
+}
+
+function clearFile(){
+  selectedFile=null;
+  document.getElementById('fileInput').value='';
+  document.getElementById('fileSelected').className='file-selected';
+  document.getElementById('dropZone').style.display='block';
+  document.getElementById('verifyBox').className='verify-box';
+  document.getElementById('validateBtn').style.display='none';
+  document.getElementById('submitBtn').disabled=false;
+}
+
+var tagList=[];
+function handleTagKey(e){
+  if(e.key==='Enter'||e.key===','){
+    e.preventDefault();
+    var val=e.target.value.trim().replace(',','');
+    if(val&&!tagList.includes(val)){
+      tagList.push(val);
+      renderTags();
+    }
+    e.target.value='';
+  }
+}
+function removeTag(t){
+  tagList=tagList.filter(function(x){return x!==t});
+  renderTags();
+}
+function renderTags(){
+  var wrap=document.getElementById('tagsWrap');
+  var inp=document.getElementById('tagInput');
+  wrap.innerHTML='';
+  tagList.forEach(function(t){
+    var span=document.createElement('span');span.className='tag-chip';
+    span.innerHTML=t+'<button onclick="removeTag(\''+t+'\')"><i data-lucide="x" style="width:10px;height:10px"></i></button>';
+    wrap.appendChild(span);
+  });
+  wrap.appendChild(inp);
+  lucide.createIcons();
+}
+
+// ══════════════════════════════
+// API CONNECTION
+// ══════════════════════════════
+var apiBaseUrl='http://3.109.62.81:5000';
+
+function setApiStatus(state,text){
+  var dot=document.getElementById('apiDot');
+  var txt=document.getElementById('apiStatusText');
+  var btn=document.getElementById('apiConnectBtn');
+  dot.className='api-status-dot '+state;
+  txt.className='api-status-text '+state;
+  txt.textContent=text;
+  if(state==='online'){btn.textContent='Connected';btn.className='api-connect-btn connected'}
+  else{btn.textContent='Connect';btn.className='api-connect-btn'}
+}
+
+function connectToBackend(){
+  var input=document.getElementById('apiUrlInput');
+  var url=(input.value||'').trim().replace(/\/$/,'');
+  if(!url){setApiStatus('offline','Enter EC2 URL');return}
+  apiBaseUrl=url;
+  setApiStatus('loading','Connecting...');
+  fetch(apiBaseUrl+'/',{signal:AbortSignal.timeout(5000)})
+    .then(function(r){return r.json()})
+    .then(function(data){
+      // FIX A1: Set isConnected to true on successful connection
+      isConnected=true;
+      setApiStatus('online','EC2 online');
+      showHealthStrip(data);
+      fetchModelsFromBackend();
+      // FIX A4: Refresh model page if one is open to show LIVE mode
+      if(currentModelId){renderModelPage(currentModelId);}
+      showToast('Connected to EC2','success',data.ec2_instance+' · '+data.region);
+    })
+    .catch(function(){
+      // FIX A1: Ensure isConnected is false on connection failure
+      isConnected=false;
+      setApiStatus('offline','Unreachable');
+      document.getElementById('apiHealthStrip').style.display='none';
+      showToast('Backend unreachable','error','Check EC2 IP and Security Group port 5000');
+    });
+}
+
+function showHealthStrip(data) {
+  var strip = document.getElementById('apiHealthStrip');
+  var allModelsCount = Array.isArray(data.models_cached)
+    ? data.models_cached
+    : (data.models_cached || 0);
+
+  var items = [
+    {
+      icon: '&#9635;',
+      label: data.ec2_instance && data.ec2_instance !== 'local'
+        ? data.ec2_instance
+        : 'EC2 local'
+    },
+    {
+      icon: '&#11042;',
+      label: data.s3_bucket ? 's3://' + data.s3_bucket : 'S3 not set'
+    },
+    {
+      icon: '&#9670;',
+      label: data.region || 'us-east-1'
+    },
+    {
+      icon: '&#9711;',
+      label: 'uptime ' + (data.uptime || '—')
+    },
+    {
+      icon: '&#11044;',
+      label: allModelsCount + ' cached'
+    },
+    {
+      icon: '&#9654;',
+      label: (data.service || 'ModelHub API')
+    }
+  ];
+
+  document.getElementById('healthText').innerHTML = items.map(function(item, i) {
+    return (i > 0 ? '<span style="color:var(--border-strong);margin:0 6px">·</span>' : '')
+      + '<span class="health-item">'
+      + '<span class="health-dot"></span>'
+      + item.label
+      + '</span>';
+  }).join('');
+
+  strip.style.display = 'flex';
+}
+
+function fetchModelsFromBackend(){
+  if(!apiBaseUrl)return;
+  fetch(apiBaseUrl+'/api/models')
+    .then(function(r){return r.json()})
+    .then(function(backendModels){
+      if(!Array.isArray(backendModels)||backendModels.length===0)return;
+      var existingIds=models.map(function(m){return m.id});
+      var newModels=backendModels.filter(function(m){
+        return!existingIds.includes(m.id);
+      }).map(function(m){
+        // FIX D1: Mark backend models as live-capable
+        m.isLive=true;
+        m.demo=function(inp){return{val:'Connect to Live API to run this model',conf:'Switch to Live mode',probs:null,meta:[{k:'model',v:m.name},{k:'source',v:m.s3_path||m.s3||'S3'}]}};
+        return m;
+      });
+      models=newModels.concat(models);
+      document.getElementById('stat-models').textContent=models.length;
+      // FIX D1: Reload gallery to show merged models
+      renderHomeModels();
+      if(document.getElementById('page-gallery').classList.contains('active'))renderGallery();
+      if(currentModelId){renderModelPage(currentModelId);}
+    })
+    .catch(function(){});
+}
+
+function submitModel(){
+  var name=document.getElementById('inp-name').value.trim();
+  var author=document.getElementById('inp-author').value.trim();
+  var desc=document.getElementById('inp-desc').value.trim();
+  if(!selectedFile){alert('Please select a .pkl file first.');return;}
+  if(!name||!author||!desc){alert('Please fill Name, Author and Description.');return;}
+  var btn=document.getElementById('submitBtn');
+  btn.disabled=true;
+  btn.innerHTML='<div class="spinner" style="border-color:rgba(0,0,0,.3);border-top-color:#000"></div> Uploading to AWS S3...';
+  
+  if(apiBaseUrl){
+    var fd=new FormData();
+    fd.append('file',selectedFile);
+    fd.append('name',name);
+    fd.append('author',author);
+    fd.append('description',desc);
+    fd.append('type',document.getElementById('inp-type').value);
+    fd.append('accuracy',document.getElementById('inp-acc').value||'N/A');
+    fd.append('features',document.getElementById('inp-features').value||'feature_1');
+    fd.append('tags',tagList.join(','));
+    fetch(apiBaseUrl+'/api/upload',{method:'POST',body:fd})
+      .then(function(r){return r.json()})
+      .then(function(data){
+        if(data.error)throw new Error(data.error);
+        var m=data.model;
+        m.runs=0;
+        m.demo=function(inp){return{val:'Connect to Live API to run this model',conf:'Switch to Live mode for real predictions',probs:null,meta:[{k:'source',v:m.s3_path||'S3'}]}};
+        models.unshift(m);
+        lastUploadedId=m.id;
+        document.getElementById('stat-models').textContent=models.length;
+        document.getElementById('upload-form-area').style.display='none';
+        document.getElementById('uploadSuccess').className='upload-success show';
+        lucide.createIcons();
+      })
+      .catch(function(e){
+        var vb=document.getElementById('verifyBox');
+        vb.className='verify-box err show';
+        document.getElementById('verifyMsg').textContent='Upload failed: '+e.message;
+        btn.disabled=false;
+        btn.innerHTML='<i data-lucide="upload-cloud" style="width:18px;height:18px"></i> Retry Upload';
+        lucide.createIcons();
+      });
+  } else {
+    setTimeout(function(){
+      var newId='model-'+Date.now();
+      var newModel={
+        id:newId,
+        name:name,
+        type:document.getElementById('inp-type').value,
+        desc:desc,
+        description:desc,
+        author:author,
+        features:(document.getElementById('inp-features').value||'feature_1').split(',').map(function(f){return f.trim()}),
+        acc:document.getElementById('inp-acc').value||'N/A',
+        accuracy:document.getElementById('inp-acc').value||'N/A',
+        tags:tagList.slice(),
+        s3:'s3://modelhub-models/'+newId+'.pkl',
+        runs:0,
+        demo:function(inp){return{val:'Demo prediction (connect EC2 for real inference)',conf:'Upload successful — Live mode needs EC2',probs:null,meta:[{k:'model',v:name},{k:'source',v:'s3://modelhub-models/'+newId+'.pkl'}]}}
+      };
+      models.unshift(newModel);
+      lastUploadedId=newId;
+      document.getElementById('stat-models').textContent=models.length;
+      document.getElementById('upload-form-area').style.display='none';
+      document.getElementById('uploadSuccess').className='upload-success show';
+      lucide.createIcons();
+    },2200);
+  }
+}
+
+function viewNewCard(){
+  if(lastUploadedId)openModel(lastUploadedId,'upload');
+}
+function resetUpload(){
+  selectedFile=null;tagList=[];
+  document.getElementById('fileInput').value='';
+  document.getElementById('fileSelected').className='file-selected';
+  document.getElementById('dropZone').style.display='block';
+  document.getElementById('verifyBox').className='verify-box';
+  document.getElementById('inp-name').value='';document.getElementById('inp-author').value='';
+  document.getElementById('inp-desc').value='';document.getElementById('inp-acc').value='';
+  document.getElementById('inp-features').value='';
+  renderTags();
+  document.getElementById('upload-form-area').style.display='block';
+  document.getElementById('uploadSuccess').className='upload-success';
+  document.getElementById('submitBtn').disabled=false;
+  document.getElementById('submitBtn').innerHTML='<i data-lucide="upload-cloud" style="width:18px;height:18px"></i> Upload &amp; Deploy to AWS';
+  lucide.createIcons();
+}
+
+// ══════════════════════════════
+// DRAG & DROP
+// ══════════════════════════════
+var dz=document.getElementById('dropZone');
+if(dz){
+  dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('drag-over')});
+  dz.addEventListener('dragleave',function(){dz.classList.remove('drag-over')});
+  dz.addEventListener('drop',function(e){
+    e.preventDefault();dz.classList.remove('drag-over');
+    var f=e.dataTransfer.files[0];
+    if(f&&f.name.endsWith('.pkl')){
+      selectedFile=f;
+      document.getElementById('fileName').textContent=f.name;
+      document.getElementById('fileSize').textContent=(f.size/1024).toFixed(1)+' KB';
+      document.getElementById('fileSelected').className='file-selected show';
+      document.getElementById('dropZone').style.display='none';
+      validateModel();
+    }
+  });
+}
+
+// ══════════════════════════════
+// THEME
+// ══════════════════════════════
+(function(){
+  var t=document.querySelector('[data-theme-toggle]'),r=document.documentElement,d='dark';
+  r.setAttribute('data-theme',d);
+  t&&t.addEventListener('click',function(){
+    d=d==='dark'?'light':'dark';r.setAttribute('data-theme',d);
+    t.innerHTML=d==='dark'
+      ?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+      :'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+  });
+})();
+
+// ══════════════════════════════
+// TOAST SYSTEM
+// ══════════════════════════════
+var TOAST_ICONS={
+  success:'<i data-lucide="check-circle" style="width:16px;height:16px"></i>',
+  error:'<i data-lucide="x-circle" style="width:16px;height:16px"></i>',
+  info:'<i data-lucide="info" style="width:16px;height:16px"></i>'
+};
+
+function showToast(message,type,sub){
+  type=type||'info';
+  var container=document.getElementById('toastContainer');
+  var toast=document.createElement('div');
+  toast.className='toast '+type;
+  toast.innerHTML=
+    '<div class="toast-bar"></div>'
+    +'<div class="toast-icon">'+TOAST_ICONS[type]+'</div>'
+    +'<div class="toast-body">'
+    +  '<div class="toast-msg">'+message+'</div>'
+    +  (sub?'<div class="toast-sub">'+sub+'</div>':'')
+    +'</div>';
+  container.appendChild(toast);
+  lucide.createIcons();
+  var timer=setTimeout(function(){removeToast(toast)},3500);
+  toast.addEventListener('click',function(){
+    clearTimeout(timer);
+    removeToast(toast);
+  });
+}
+
+function removeToast(toast){
+  toast.classList.add('removing');
+  setTimeout(function(){
+    if(toast.parentNode)toast.parentNode.removeChild(toast);
+  },260);
+}
+
+// ══════════════════════════════
+// VALIDATE MODEL (upload page)
+// ══════════════════════════════
+function validateModel(){
+  var btn=document.getElementById('validateBtn');
+  var vb=document.getElementById('verifyBox');
+  var submitBtn=document.getElementById('submitBtn');
+
+  if(apiBaseUrl&&selectedFile){
+    btn.className='btn-validate validating';
+    btn.innerHTML='<div class="spinner"></div> Analysing model...';
+    vb.className='verify-box loading show';
+    document.getElementById('verifyMsg').textContent='Sending to backend for validation...';
+
+    var fd=new FormData();
+    fd.append('file',selectedFile);
+
+    fetch(apiBaseUrl+'/api/validate',{method:'POST',body:fd})
+      .then(function(r){return r.json()})
+      .then(function(data){
+        if(!data.valid)throw new Error(data.error||'Invalid model');
+
+        var featInp=document.getElementById('inp-features');
+        if(!featInp.value.trim()&&data.n_features){
+          var autoFeats=[];
+          for(var i=1;i<=data.n_features;i++)autoFeats.push('feature_'+i);
+          featInp.value=autoFeats.join(', ');
+        }
+
+        var classInfo=data.classes&&data.classes.length
+          ?' · Classes: '+data.classes.join(', ')
+          :'';
+        var msg='✓ '+data.model_type
+          +' · '+(data.n_features||'?')+' input features'
+          +classInfo;
+
+        vb.className='verify-box ok show';
+        document.getElementById('verifyMsg').textContent=msg;
+        btn.className='btn-validate valid';
+        btn.innerHTML='<i data-lucide="check" style="width:15px;height:15px"></i> Model validated';
+        document.getElementById('aiGenBtn').style.display='inline-flex';
+        submitBtn.disabled=false;
+        showToast('Model validated','success',data.model_type+' · '+(data.n_features||'?')+' features');
+        lucide.createIcons();
+      })
+      .catch(function(e){
+        vb.className='verify-box err show';
+        document.getElementById('verifyMsg').textContent='✗ '+e.message;
+        btn.className='btn-validate invalid';
+        btn.innerHTML='<i data-lucide="x" style="width:15px;height:15px"></i> Validation failed — retry';
+        submitBtn.disabled=true;
+        showToast('Model validation failed','error',e.message);
+        lucide.createIcons();
+      });
+
+  } else {
+    btn.className='btn-validate validating';
+    btn.innerHTML='<div class="spinner"></div> Analysing model...';
+    vb.className='verify-box loading show';
+    document.getElementById('verifyMsg').textContent='Validating model file...';
+    setTimeout(function(){
+      vb.className='verify-box ok show';
+      document.getElementById('verifyMsg').textContent='✓ sklearn model detected · Ready to upload';
+      btn.className='btn-validate valid';
+      btn.innerHTML='<i data-lucide="check" style="width:15px;height:15px"></i> Model validated';
+      document.getElementById('aiGenBtn').style.display='inline-flex';
+      submitBtn.disabled=false;
+      showToast('Model looks valid','info','Connect EC2 for full analysis');
+      lucide.createIcons();
+    },1200);
+  }
+}
+
+// ══════════════════════════════
+// GROQ AUTO-GENERATE
+// ══════════════════════════════
+var aiGeneratedData=null;
+
+function getGroqKey(){
+  return(document.getElementById('groqKeyInput').value||'').trim();
+}
+
+function generateWithGroq(){
+  var groqKey=getGroqKey();
+  if(!groqKey){
+    showToast('Add your Groq API key in the bar above','error','Get a free key at console.groq.com');
+    document.getElementById('groqKeyInput').focus();
+    return;
+  }
+
+  var modelType=document.getElementById('inp-type').value;
+  var modelName=document.getElementById('inp-name').value.trim()||'ML model';
+  var features=document.getElementById('inp-features').value.trim();
+  var accuracy=document.getElementById('inp-acc').value.trim();
+  var verifyMsg=document.getElementById('verifyMsg').textContent;
+
+  var prompt='You are writing a model card for an open-source ML model hub (like Hugging Face).\nGenerate a JSON object for this model card. Be concise, technical, and specific.\n\nModel info:\n- Name: '+modelName+'\n- Task type: '+modelType+'\n- Input features: '+(features||'unknown')+'\n- Accuracy/Score: '+(accuracy||'not specified')+'\n- Validation info: '+verifyMsg+'\n\nReturn ONLY valid JSON with this exact structure:\n{\n  "description": "2-3 sentence technical description of what this model does, how it was likely trained, and what problem it solves",\n  "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],\n  "use_cases": ["Use case 1", "Use case 2", "Use case 3"],\n  "limitations": "One sentence about model limitations or caveats"\n}\n\nRules:\n- description must be specific to the model name and task, not generic\n- tags should include: framework (sklearn), algorithm guess, domain, task type\n- use_cases should be real-world applications\n- Do not wrap in markdown code blocks, return raw JSON only';
+
+  var btn=document.getElementById('aiGenBtn');
+  btn.classList.add('loading');
+  btn.innerHTML='<i data-lucide="sparkles" style="width:12px;height:12px"></i> Generating...';
+  document.getElementById('aiPreviewBox').style.display='none';
+  showToast('Asking Groq AI...','info','llama-3.3-70b-versatile');
+  lucide.createIcons();
+
+  fetch('https://api.groq.com/openai/v1/chat/completions',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':'Bearer '+groqKey
+    },
+    body:JSON.stringify({
+      model:'llama-3.3-70b-versatile',
+      messages:[{role:'user',content:prompt}],
+      temperature:0.7,
+      max_tokens:500
+    })
+  })
+  .then(function(r){
+    if(!r.ok)throw new Error('Groq API error: '+r.status);
+    return r.json();
+  })
+  .then(function(data){
+    var raw=data.choices[0].message.content.trim();
+    raw=raw.replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/```\s*$/i,'').trim();
+    var parsed=JSON.parse(raw);
+    aiGeneratedData=parsed;
+    renderAiPreview(parsed);
+    btn.classList.remove('loading');
+    btn.innerHTML='<i data-lucide="sparkles" style="width:12px;height:12px"></i> Regenerate';
+    showToast('AI content ready','success','Review and apply to form');
+    lucide.createIcons();
+  })
+  .catch(function(e){
+    btn.classList.remove('loading');
+    btn.innerHTML='<i data-lucide="sparkles" style="width:12px;height:12px"></i> AI Generate';
+    showToast('Groq failed: '+e.message,'error','Check your API key');
+    lucide.createIcons();
+  });
+}
+
+function renderAiPreview(data){
+  var box=document.getElementById('aiPreviewBox');
+  var content=document.getElementById('aiPreviewContent');
+
+  var tagsHtml=(data.tags||[]).map(function(t){
+    return'<span class="tag-chip">'+t+'</span>';
+  }).join('');
+
+  var useCasesHtml=(data.use_cases||[]).map(function(u){
+    return'<li>'+u+'</li>';
+  }).join('');
+
+  content.innerHTML=
+    '<div class="ai-field-row">'
+    +'<div class="ai-field-label">Description</div>'
+    +'<div class="ai-field-value">'+(data.description||'')+'</div>'
+    +'</div>'
+    +'<div class="ai-field-row">'
+    +'<div class="ai-field-label">Tags</div>'
+    +'<div class="ai-tag-row">'+tagsHtml+'</div>'
+    +'</div>'
+    +'<div class="ai-field-row">'
+    +'<div class="ai-field-label">Use Cases</div>'
+    +'<ul class="ai-use-cases">'+useCasesHtml+'</ul>'
+    +'</div>'
+    +(data.limitations?'<div class="ai-field-row">'
+    +'<div class="ai-field-label">Limitations</div>'
+    +'<div class="ai-field-value" style="color:var(--text-2)">'+data.limitations+'</div>'
+    +'</div>':'');
+
+  box.style.display='block';
+  lucide.createIcons();
+}
+
+function applyAiContent(){
+  if(!aiGeneratedData)return;
+  if(aiGeneratedData.description){
+    document.getElementById('inp-desc').value=aiGeneratedData.description;
+  }
+  if(aiGeneratedData.tags&&aiGeneratedData.tags.length){
+    tagList=aiGeneratedData.tags.slice(0,6);
+    renderTags();
+  }
+  if(aiGeneratedData.use_cases){
+    window._aiUseCases=aiGeneratedData.use_cases;
+  }
+  dismissAiPreview();
+  showToast('AI content applied to form','success');
+}
+
+function dismissAiPreview(){
+  document.getElementById('aiPreviewBox').style.display='none';
+}
+
+// ══════════════════════════════
+// SKELETON + EMPTY STATE
+// ══════════════════════════════
+function buildSkeletonCard() {
+  return '<div class="skeleton-card">'
+    + '<div class="skel skel-stripe"></div>'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--s4)">'
+    +   '<div class="skel skel-icon"></div>'
+    +   '<div class="skel" style="height:20px;width:80px;border-radius:var(--r-full)"></div>'
+    + '</div>'
+    + '<div class="skel skel-title"></div>'
+    + '<div class="skel skel-line med"></div>'
+    + '<div class="skel skel-line"></div>'
+    + '<div class="skel skel-line short"></div>'
+    + '<div class="skel-footer">'
+    +   '<div class="skel skel-stat"></div>'
+    +   '<div class="skel skel-stat"></div>'
+    +   '<div class="skel skel-stat"></div>'
+    + '</div>'
+    + '</div>';
+}
+
+function showSkeletons(gridId, count) {
+  var el = document.getElementById(gridId);
+  if (!el) return;
+  var html = '';
+  for (var i = 0; i < count; i++) html += buildSkeletonCard();
+  el.innerHTML = html;
+}
+
+function buildEmptyState(heading, subtext, ctaLabel, ctaAction) {
+  return '<div class="empty-state">'
+    + '<div class="empty-state-icon"><i data-lucide="inbox" style="width:28px;height:28px"></i></div>'
+    + '<h3>' + heading + '</h3>'
+    + '<p>' + subtext + '</p>'
+    + (ctaLabel
+        ? '<button class="btn-primary" onclick="' + ctaAction + '">'
+          + '<i data-lucide="upload-cloud" style="width:15px;height:15px"></i> '
+          + ctaLabel + '</button>'
+        : '')
+    + '</div>';
+}
+
+// ══════════════════════════════
+// MOBILE TAB BAR — sync active tab
+// ══════════════════════════════
+function updateMobileTabs(pageName) {
+  document.querySelectorAll('.mob-tab').forEach(function(t) {
+    t.classList.remove('active');
+  });
+  var activeTab = document.getElementById('tab-' + pageName);
+  if (activeTab) activeTab.classList.add('active');
+}
+
+// ══════════════════════════════
+// COPY TO CLIPBOARD HELPER
+// ══════════════════════════════
+function copyToClipboard(text, btnEl, successLabel) {
+  navigator.clipboard.writeText(text).then(function() {
+    var original = btnEl.innerHTML;
+    btnEl.classList.add('copied');
+    btnEl.innerHTML = '<i data-lucide="check" style="width:12px;height:12px"></i> '
+      + (successLabel || 'Copied!');
+    lucide.createIcons();
+    setTimeout(function() {
+      btnEl.classList.remove('copied');
+      btnEl.innerHTML = original;
+      lucide.createIcons();
+    }, 2000);
+  }).catch(function() {
+    showToast('Copy failed', 'error', 'Try selecting the text manually');
+  });
+}
+
+// ══════════════════════════════
+// SHARE MODEL LINK
+// ══════════════════════════════
+function shareModel(id) {
+  var url = window.location.href.split('#')[0] + '#model/' + id;
+  window.location.hash = 'model/' + id;
+  var btn = document.getElementById('shareBtnEl');
+  if (btn) {
+    copyToClipboard(url, btn, 'Link copied!');
+  } else {
+    navigator.clipboard.writeText(url).then(function() {
+      showToast('Model link copied!', 'success', url);
+    });
+  }
+}
+
+// ══════════════════════════════
+// COPY CURL COMMAND
+// ══════════════════════════════
+function copyCurl(modelId, features) {
+  var base = apiBaseUrl || 'http://YOUR-EC2-IP:5000';
+  var inputObj = {};
+  (features || []).forEach(function(f) { inputObj[f.trim()] = 0; });
+  var curlCmd = 'curl -X POST ' + base + '/api/predict \\\n'
+    + '  -H "Content-Type: application/json" \\\n'
+    + '  -d \'' + JSON.stringify({ model: modelId, input: inputObj }, null, 2) + '\'';
+  var btn = document.getElementById('copyCurlBtn');
+  if (btn) copyToClipboard(curlCmd, btn, 'Copied!');
+  showToast('curl command copied', 'success', 'Paste in your terminal');
+}
+
+// ══════════════════════════════
+// LIVE RUN COUNTER UPDATE
+// ══════════════════════════════
+function bumpRunCounter(modelId) {
+  var m = models.find(function(x) { return x.id === modelId; });
+  if (!m) return;
+  m.runs = (m.runs || 0) + 1;
+  var el = document.getElementById('run-count-' + modelId);
+  if (el) {
+    el.textContent = m.runs;
+    el.classList.add('bump');
+    setTimeout(function() { el.classList.remove('bump'); }, 400);
+  }
+}
+
+// ══════════════════════════════
+// HASH ROUTING — open model by URL
+// ══════════════════════════════
+function handleHashRouting() {
+  var hash = window.location.hash;
+  if (hash && hash.startsWith('#model/')) {
+    var id = hash.replace('#model/', '');
+    var m = models.find(function(x) { return x.id === id; });
+    if (m) openModel(id, 'home');
+  }
+}
+
+window.addEventListener('hashchange', handleHashRouting);
+
+// ══════════════════════════════
+// INIT
+// ══════════════════════════════
+renderHomeModels();
+lucide.createIcons();
+handleHashRouting();
+// Auto-connect to EC2 backend if URL is available
+var savedUrl = document.getElementById('apiUrlInput').value;
+if (savedUrl) {
+  setTimeout(function() { connectToBackend(); }, 100);
+}
+updateMobileTabs('home');
+</script>
+
+<!-- TOAST CONTAINER -->
+<div id="toastContainer" style="
+  position:fixed;bottom:20px;right:20px;
+  display:flex;flex-direction:column;gap:10px;
+  z-index:9999;pointer-events:none;
+"></div>
+
+<!-- MOBILE BOTTOM TAB BAR -->
+<nav class="mobile-tabs" id="mobileTabs">
+  <button class="mob-tab active" id="tab-home" onclick="showPage('home')">
+    <i data-lucide="home" style="width:20px;height:20px"></i>
+    <span>Home</span>
+  </button>
+  <button class="mob-tab" id="tab-gallery" onclick="showPage('gallery')">
+    <i data-lucide="layers" style="width:20px;height:20px"></i>
+    <span>Models</span>
+  </button>
+  <button class="mob-tab upload-tab" id="tab-upload" onclick="showPage('upload')">
+    <div class="upload-tab-circle">
+      <i data-lucide="upload" style="width:20px;height:20px"></i>
+    </div>
+    <span>Upload</span>
+  </button>
+</nav>
+
+</body>
+</html>

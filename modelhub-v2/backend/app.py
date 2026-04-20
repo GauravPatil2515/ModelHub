@@ -5,8 +5,8 @@ import boto3, joblib, numpy as np, json, tempfile, os, time
 app = Flask(__name__)
 CORS(app, origins="*")
 
-S3_BUCKET = os.environ.get("S3_BUCKET_NAME", "modelhub-models")
-s3 = boto3.client("s3")
+S3_BUCKET = os.environ.get("S3_BUCKET_NAME", "modelhub-models-gaurav")
+s3 = boto3.client("s3", region_name="ap-south-1")
 model_cache = {}
 METADATA_KEY = "metadata/models.json"
 START_TIME = time.time()

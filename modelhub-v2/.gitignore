@@ -1,10 +1,20 @@
+# Python
 venv/
+backend/venv/
 __pycache__/
 *.pyc
 *.pyo
 .env
+.env.local
+
+# Models & Training
 *.pkl
+models/pkl/
+train_*.log
+
+# System
 *.log
 .DS_Store
 Thumbs.db
 node_modules/
+.vercel
