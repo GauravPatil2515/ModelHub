@@ -858,8 +858,8 @@ img,svg{display:block;max-width:100%}
         type="text"
         class="api-url-input"
         id="apiUrlInput"
-        placeholder="http://your-ec2-ip:5000"
-        value="http://3.109.62.81:5000"
+        placeholder="https://your-backend.onrender.com"
+        value="https://modelhub-backend.onrender.com"
         onkeydown="if(event.key==='Enter')connectToBackend()"
       />
     </div>
@@ -1710,7 +1710,7 @@ function renderTags(){
 // ══════════════════════════════
 // API CONNECTION
 // ══════════════════════════════
-var apiBaseUrl='http://3.109.62.81:5000';
+var apiBaseUrl='https://modelhub-backend.onrender.com'; // Update after deploying backend on Render.com
 
 function setApiStatus(state,text){
   var dot=document.getElementById('apiDot');
