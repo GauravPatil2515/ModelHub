@@ -1217,7 +1217,7 @@ var EMOJI = {classification:'&#127800;',nlp:'&#9993;',regression:'&#127968;',clu
 var AVATAR_COLORS = ['#c8ff00','#4d9fff','#b57bff','#ff6b9d','#00e5a0','#ff8c42'];
 
 var models = [
-  {id:'iris',name:'Iris Flower Classifier',type:'classification',
+  {id:'iris',name:'Iris Flower Classifier',type:'classification',source:'demo',
    desc:'Predicts Iris species from petal and sepal measurements using a Random Forest. Trained on the classic UCI Iris dataset.',
    author:'Gaurav Patil',features:['sepal_length','sepal_width','petal_length','petal_width'],
    acc:'97.2%',tags:['sklearn','random-forest','multiclass'],
@@ -1232,7 +1232,7 @@ var models = [
      return{val:species,conf:'Confidence: '+conf+'%',probs:probs,meta:[{k:'model',v:'RandomForestClassifier'},{k:'source',v:'s3://modelhub/iris.pkl'},{k:'latency',v:(30+Math.random()*60|0)+'ms'}]};
    }
   },
-  {id:'spam',name:'Spam Email Detector',type:'nlp',
+  {id:'spam',name:'Spam Email Detector',type:'nlp',source:'demo',
    desc:'Classifies email text as Spam or Not Spam using TF-IDF vectorization and a Multinomial Naive Bayes classifier.',
    author:'Gaurav Patil',features:['text'],
    acc:'94.5%',tags:['nlp','naive-bayes','tfidf'],
@@ -1246,7 +1246,7 @@ var models = [
        meta:[{k:'model',v:'MultinomialNB'},{k:'vocab',v:'5000 tokens'},{k:'latency',v:(15+Math.random()*40|0)+'ms'}]};
    }
   },
-  {id:'house',name:'House Price Predictor',type:'regression',
+  {id:'house',name:'House Price Predictor',type:'regression',source:'demo',
    desc:'Estimates house prices from area, number of rooms, and building age. Trained on a synthetic dataset using Linear Regression.',
    author:'Gaurav Patil',features:['area','rooms','age'],
    acc:'R²=0.91',tags:['regression','linear','pricing'],
@@ -1312,12 +1312,13 @@ function authorInitial(name){return(name||'?')[0].toUpperCase()}
 
 function buildCard(m,from){
   var c=COLORS[m.type]||COLORS.classification;
+  var badge=m.source==='live'?'🟢 LIVE':'⚫ DEMO';
   return '<div class="mcard" onclick="openModel(\''+m.id+'\',\''+from+'\')">' 
     +'<div class="mcard-stripe" style="background:'+c.stripe+'"></div>'
     +'<div class="mcard-body">'
     +'<div class="mcard-top">'
     +'<div class="mcard-icon" style="background:'+c.icon+'">'+EMOJI[m.type]+'</div>'
-    +'<span class="mcard-type" style="background:'+c.badge+';color:'+c.text+'">'+m.type+'</span>'
+    +'<div style="display:flex;gap:var(--s2);align-items:center"><span class="mcard-type" style="background:'+c.badge+';color:'+c.text+'">'+m.type+'</span><span style="font-size:var(--t-xs);font-weight:600;color:var(--text-2)">'+badge+'</span></div>'
     +'</div>'
     +'<h3>'+m.name+'</h3>'
     +'<div class="mcard-desc">'+m.desc+'</div>'
@@ -1800,25 +1801,27 @@ function fetchModelsFromBackend(){
   if(!apiBaseUrl)return;
   fetch(apiBaseUrl+'/api/models')
     .then(function(r){return r.json()})
-    .then(function(backendModels){
+    .then(function(data){
+      var backendModels=data.models||data;
       if(!Array.isArray(backendModels)||backendModels.length===0)return;
-      var existingIds=models.map(function(m){return m.id});
-      var newModels=backendModels.filter(function(m){
-        return!existingIds.includes(m.id);
-      }).map(function(m){
-        // FIX D1: Mark backend models as live-capable
+      // Mark all backend models with source:'live'
+      backendModels=backendModels.map(function(m){
+        m.source='live';
         m.isLive=true;
         m.demo=function(inp){return{val:'Connect to Live API to run this model',conf:'Switch to Live mode',probs:null,meta:[{k:'model',v:m.name},{k:'source',v:m.s3_path||m.s3||'S3'}]}};
         return m;
       });
-      models=newModels.concat(models);
+      // Merge: backend models override seed models with same ID
+      models=models.filter(function(m){return m.source!=='demo'||!backendModels.find(function(b){return b.id===m.id})});
+      models=backendModels.concat(models);
       document.getElementById('stat-models').textContent=models.length;
-      // FIX D1: Reload gallery to show merged models
+      showToast('✅ Loaded '+backendModels.length+' models from backend','success');
+      // Reload all UI to show backend models
       renderHomeModels();
       if(document.getElementById('page-gallery').classList.contains('active'))renderGallery();
       if(currentModelId){renderModelPage(currentModelId);}
     })
-    .catch(function(){});
+    .catch(function(e){console.warn('Failed to fetch backend models:',e);});
 }
 
 function submitModel(){
