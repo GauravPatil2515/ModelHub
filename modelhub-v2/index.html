@@ -348,6 +348,87 @@ img,svg{display:block;max-width:100%}
 .verify-box.show{display:flex}
 .verify-box.ok{background:var(--green-dim);border:1px solid rgba(0,229,160,0.2);color:var(--green)}
 .verify-box.err{background:var(--pink-dim);border:1px solid rgba(255,107,157,0.2);color:var(--pink)}
+
+/* SECTION A: Inspection Card */
+.inspection-card{
+  margin-bottom:var(--s6);border:1px solid var(--border);
+  border-radius:var(--r-lg);background:var(--bg);overflow:hidden;
+}
+.inspection-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:var(--s4) var(--s5);border-bottom:1px solid var(--border);
+  background:var(--bg2);
+}
+.inspection-title{display:flex;align-items:center;gap:var(--s2);font-weight:600;font-size:var(--t-sm)}
+.inspection-close{background:none;border:none;color:var(--text-3);cursor:pointer}
+.inspection-close:hover{color:var(--text)}
+.inspection-body{padding:var(--s4) var(--s5)}
+.inspection-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:var(--s2) 0;border-bottom:1px solid var(--border-weak);
+  font-size:var(--t-xs);
+}
+.inspection-row:last-child{border-bottom:none}
+.inspection-label{font-weight:600;color:var(--text-2);min-width:120px;text-transform:uppercase;font-family:var(--mono);letter-spacing:.02em}
+.inspection-value{color:var(--text);font-weight:500;text-align:right;flex:1;padding-left:var(--s3)}
+
+/* SECTION B: Feature Editor */
+.feature-editor{
+  margin-bottom:var(--s6);border:1px solid var(--border);
+  border-radius:var(--r-lg);background:var(--bg);padding:var(--s5);
+}
+.feature-editor-header{margin-bottom:var(--s4)}
+.feature-editor-header h3{font-size:var(--t-base);font-weight:700;margin-bottom:var(--s1)}
+.feature-editor-header p{font-size:var(--t-xs);color:var(--text-3)}
+.feature-table-wrap{
+  max-height:300px;overflow-y:auto;margin-bottom:var(--s4);
+  border:1px solid var(--border);border-radius:var(--r-md);
+}
+.feature-table{width:100%;border-collapse:collapse;font-size:var(--t-xs)}
+.feature-table thead{background:var(--bg2);position:sticky;top:0}
+.feature-table th{
+  padding:var(--s3) var(--s4);text-align:left;font-weight:600;
+  border-bottom:1px solid var(--border);color:var(--text-2);
+}
+.feature-table td{padding:var(--s3) var(--s4);border-bottom:1px solid var(--border-weak)}
+.feature-table td:first-child{text-align:center;color:var(--text-3);font-family:var(--mono)}
+.feature-table input{
+  width:100%;padding:var(--s2) var(--s3);
+  background:var(--s2c);border:1px solid var(--border);
+  border-radius:var(--r-sm);font-family:var(--mono);font-size:var(--t-xs);
+  color:var(--text);outline:none;transition:all 120ms ease;
+}
+.feature-table input:focus{border-color:var(--accent);background:var(--bg)}
+.feature-editor-actions{display:flex;gap:var(--s3)}
+
+/* SECTION B2: Test Prediction */
+.test-prediction-card{
+  margin-bottom:var(--s6);border:1px solid var(--border);
+  border-radius:var(--r-lg);background:var(--bg);padding:var(--s5);
+}
+.test-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--s4)}
+.test-header h3{font-size:var(--t-base);font-weight:700;margin:0}
+.test-inputs{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:var(--s4);margin-bottom:var(--s4);
+}
+.test-input-group{display:flex;flex-direction:column;gap:var(--s1)}
+.test-input-group label{
+  font-size:var(--t-xs);font-weight:600;font-family:var(--mono);
+  color:var(--text-2);text-transform:uppercase;letter-spacing:.02em;
+}
+.test-input-group input{
+  padding:var(--s3) var(--s4);background:var(--s2c);border:1px solid var(--border);
+  border-radius:var(--r-md);color:var(--text);font-family:var(--mono);font-size:var(--t-sm);
+  outline:none;transition:all 120ms ease;
+}
+.test-input-group input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+.test-actions{display:flex;gap:var(--s3);margin-bottom:var(--s4)}
+.test-result{
+  padding:var(--s4);background:var(--green-dim);border:1px solid rgba(0,229,160,0.3);
+  border-radius:var(--r-md);color:var(--green);font-family:var(--mono);font-size:var(--t-sm);
+  line-height:1.6;
+}
 .verify-box.loading{background:var(--blue-dim);border:1px solid rgba(77,159,255,0.2);color:var(--blue)}
 
 .btn-submit{
@@ -1045,6 +1126,95 @@ img,svg{display:block;max-width:100%}
         <span id="verifyMsg"></span>
       </div>
 
+      <!-- SECTION A: Inspection Card (A3) -->
+      <div class="inspection-card" id="inspectionCard" style="display:none">
+        <div class="inspection-header">
+          <div class="inspection-title">
+            <i data-lucide="check-circle" style="width:20px;height:20px;color:var(--green)"></i>
+            <span id="inspectionTitle">Model Inspection</span>
+          </div>
+          <button class="inspection-close" onclick="document.getElementById('inspectionCard').style.display='none'">
+            <i data-lucide="x" style="width:16px;height:16px"></i>
+          </button>
+        </div>
+        <div class="inspection-body">
+          <div class="inspection-row">
+            <div class="inspection-label">Model Class</div>
+            <div class="inspection-value" id="inspect-modelClass">—</div>
+          </div>
+          <div class="inspection-row">
+            <div class="inspection-label">Task Type</div>
+            <div class="inspection-value" id="inspect-taskType">—</div>
+          </div>
+          <div class="inspection-row">
+            <div class="inspection-label">Features</div>
+            <div class="inspection-value" id="inspect-nFeatures">—</div>
+          </div>
+          <div class="inspection-row" id="inspect-classesRow" style="display:none">
+            <div class="inspection-label">Classes</div>
+            <div class="inspection-value" id="inspect-classes">—</div>
+          </div>
+          <div class="inspection-row">
+            <div class="inspection-label">sklearn Version</div>
+            <div class="inspection-value" id="inspect-sklearn">—</div>
+          </div>
+          <div class="inspection-row">
+            <div class="inspection-label">File Size</div>
+            <div class="inspection-value" id="inspect-fileSize">—</div>
+          </div>
+          <div class="inspection-row" id="inspect-paramsRow" style="display:none">
+            <div class="inspection-label" style="vertical-align:flex-start;padding-top:4px">Top Params</div>
+            <div class="inspection-value" style="font-family:var(--mono);font-size:0.75rem;line-height:1.6">
+              <div id="inspect-params"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION B: Feature Names Editor (B1) -->
+      <div class="feature-editor" id="featureEditor" style="display:none">
+        <div class="feature-editor-header">
+          <h3>Feature Names</h3>
+          <p>Rename features to meaningful names for better UX</p>
+        </div>
+        <div class="feature-table-wrap">
+          <table class="feature-table" id="featureTable">
+            <thead>
+              <tr>
+                <th style="width:40px">Index</th>
+                <th>Current Name</th>
+                <th style="width:140px">Rename</th>
+              </tr>
+            </thead>
+            <tbody id="featureTableBody"></tbody>
+          </table>
+        </div>
+        <div class="feature-editor-actions">
+          <button class="btn-secondary" onclick="testPrediction()">
+            <i data-lucide="play" style="width:14px;height:14px"></i>
+            Test Prediction
+          </button>
+        </div>
+      </div>
+
+      <!-- SECTION B2: Test Prediction UI -->
+      <div class="test-prediction-card" id="testPredictionCard" style="display:none">
+        <div class="test-header">
+          <h3>Test Prediction</h3>
+          <button class="inspection-close" onclick="document.getElementById('testPredictionCard').style.display='none'">
+            <i data-lucide="x" style="width:16px;height:16px"></i>
+          </button>
+        </div>
+        <div class="test-inputs" id="testInputsContainer"></div>
+        <div class="test-actions">
+          <button class="btn-primary" onclick="runTestPrediction()">
+            <i data-lucide="zap" style="width:14px;height:14px"></i>
+            Run Test
+          </button>
+        </div>
+        <div class="test-result" id="testResult" style="display:none"></div>
+      </div>
+
       <!-- Form -->
       <div class="form-section">
         <div class="form-section-title">
@@ -1707,6 +1877,7 @@ function showResultError(msg){
 // UPLOAD
 // ══════════════════════════════
 function handleFileSelect(inp){
+  // A1: On file drop/select, immediately POST file to /api/validate
   var file=inp.files[0];
   if(!file)return;
   selectedFile=file;
@@ -1714,10 +1885,18 @@ function handleFileSelect(inp){
   document.getElementById('fileSize').textContent=(file.size/1024).toFixed(1)+' KB';
   document.getElementById('fileSelected').className='file-selected show';
   document.getElementById('dropZone').style.display='none';
-  document.getElementById('validateBtn').style.display='flex';
-  document.getElementById('validateBtn').className='btn-validate';
-  document.getElementById('validateBtn').innerHTML='<i data-lucide="flask-conical" style="width:15px;height:15px"></i> Test Model — Detect Type & Features';
-  document.getElementById('verifyBox').className='verify-box';
+  document.getElementById('validateBtn').style.display='none';
+  document.getElementById('featureEditor').style.display='none';
+  document.getElementById('testPredictionCard').style.display='none';
+  
+  // A2: Show loading spinner "Inspecting model..."
+  var verifyBox=document.getElementById('verifyBox');
+  verifyBox.className='verify-box show';
+  verifyBox.innerHTML='<div class="spinner" style="width:16px;height:16px;border-color:rgba(0,229,160,.3);border-top-color:var(--green)"></div><span>Inspecting model...</span>';
+  
+  // Auto-call validateModel after a brief delay
+  setTimeout(validateModel, 100);
+}
   document.getElementById('submitBtn').disabled=true;
   lucide.createIcons();
 }
@@ -1729,6 +1908,9 @@ function clearFile(){
   document.getElementById('dropZone').style.display='block';
   document.getElementById('verifyBox').className='verify-box';
   document.getElementById('validateBtn').style.display='none';
+  document.getElementById('inspectionCard').style.display='none';
+  document.getElementById('featureEditor').style.display='none';
+  document.getElementById('testPredictionCard').style.display='none';
   document.getElementById('submitBtn').disabled=false;
 }
 
@@ -1915,8 +2097,27 @@ function submitModel(){
   var name=document.getElementById('inp-name').value.trim();
   var author=document.getElementById('inp-author').value.trim();
   var desc=document.getElementById('inp-desc').value.trim();
+  
+  // C3: Check that file is inspected and features are set
   if(!selectedFile){alert('Please select a .pkl file first.');return;}
   if(!name||!author||!desc){alert('Please fill Name, Author and Description.');return;}
+  
+  // C3: Get features from editor if available, otherwise from input field
+  var featureNames=[];
+  var featureInputs=document.querySelectorAll('.feature-input');
+  if(featureInputs.length>0){
+    // Features were edited: read from editor
+    featureNames=Array.from(featureInputs).map(function(x){return x.value.trim()});
+  } else {
+    // No editor: read from inp-features field
+    featureNames=(document.getElementById('inp-features').value||'feature_1').split(',').map(function(f){return f.trim()});
+  }
+  
+  if(!featureNames||featureNames.length===0){
+    alert('Please set at least one feature name.');
+    return;
+  }
+  
   var btn=document.getElementById('submitBtn');
   btn.disabled=true;
   btn.innerHTML='<div class="spinner" style="border-color:rgba(0,0,0,.3);border-top-color:#000"></div> Uploading to AWS S3...';
@@ -1929,7 +2130,7 @@ function submitModel(){
     fd.append('description',desc);
     fd.append('type',document.getElementById('inp-type').value);
     fd.append('accuracy',document.getElementById('inp-acc').value||'N/A');
-    fd.append('features',document.getElementById('inp-features').value||'feature_1');
+    fd.append('features',featureNames.join(','));
     fd.append('tags',tagList.join(','));
     fetch(apiBaseUrl+'/api/upload',{method:'POST',body:fd})
       .then(function(r){return r.json()})
@@ -1948,7 +2149,7 @@ function submitModel(){
       .catch(function(e){
         var vb=document.getElementById('verifyBox');
         vb.className='verify-box err show';
-        document.getElementById('verifyMsg').textContent='Upload failed: '+e.message;
+        vb.innerHTML='<i data-lucide="alert-circle" style="width:16px;height:16px"></i><span>Upload failed: '+e.message+'</span>';
         btn.disabled=false;
         btn.innerHTML='<i data-lucide="upload-cloud" style="width:18px;height:18px"></i> Retry Upload';
         lucide.createIcons();
@@ -1963,7 +2164,7 @@ function submitModel(){
         desc:desc,
         description:desc,
         author:author,
-        features:(document.getElementById('inp-features').value||'feature_1').split(',').map(function(f){return f.trim()}),
+        features:featureNames,
         acc:document.getElementById('inp-acc').value||'N/A',
         accuracy:document.getElementById('inp-acc').value||'N/A',
         tags:tagList.slice(),
@@ -2076,59 +2277,166 @@ function removeToast(toast){
 // ══════════════════════════════
 // VALIDATE MODEL (upload page)
 // ══════════════════════════════
+// A1-A4: Comprehensive model validation with inspection card
 function validateModel(){
-  var btn=document.getElementById('validateBtn');
-  var vb=document.getElementById('verifyBox');
+  var verifyBox=document.getElementById('verifyBox');
   var submitBtn=document.getElementById('submitBtn');
 
-  if(apiBaseUrl&&selectedFile){
-    btn.className='btn-validate validating';
-    btn.innerHTML='<div class="spinner"></div> Analysing model...';
-    vb.className='verify-box loading show';
-    document.getElementById('verifyMsg').textContent='Sending to backend for validation...';
+  if(!selectedFile){
+    verifyBox.className='verify-box err show';
+    verifyBox.innerHTML='<i data-lucide="alert-circle" style="width:16px;height:16px"></i><span>Please select a file first</span>';
+    return;
+  }
 
-    var fd=new FormData();
-    fd.append('file',selectedFile);
+  // A2: Show loading spinner
+  verifyBox.className='verify-box show';
+  verifyBox.innerHTML='<div class="spinner" style="width:16px;height:16px;border-color:rgba(0,229,160,.3);border-top-color:var(--green)"></div><span>Inspecting model...</span>';
+  
+  var inspectionCard=document.getElementById('inspectionCard');
+  inspectionCard.style.display='none';
+  document.getElementById('featureEditor').style.display='none';
 
-    fetch(apiBaseUrl+'/api/validate',{method:'POST',body:fd})
-      .then(function(r){return r.json()})
-      .then(function(data){
-        if(!data.valid)throw new Error(data.error||'Invalid model');
+  var fd=new FormData();
+  fd.append('file',selectedFile);
 
-        var featInp=document.getElementById('inp-features');
-        if(!featInp.value.trim()&&data.n_features){
-          var autoFeats=[];
-          for(var i=1;i<=data.n_features;i++)autoFeats.push('feature_'+i);
-          featInp.value=autoFeats.join(', ');
+  fetch((apiBaseUrl||'https://modelhub-9t2g.onrender.com')+'/api/validate',{method:'POST',body:fd})
+    .then(function(r){return r.json()})
+    .then(function(data){
+      if(!data.valid)throw new Error(data.error||'Invalid model');
+
+      // A3: Render inspection card with full details
+      document.getElementById('inspect-modelClass').textContent=data.model_class||'Unknown';
+      document.getElementById('inspect-taskType').textContent=data.task?data.task.charAt(0).toUpperCase()+data.task.slice(1):'Unknown';
+      document.getElementById('inspect-nFeatures').textContent=data.n_features+' features';
+      document.getElementById('inspect-sklearn').textContent=data.sklearn_version||'Unknown';
+      document.getElementById('inspect-fileSize').textContent=data.file_size_kb+'KB';
+      
+      // Show classes if classifier
+      var classesRow=document.getElementById('inspect-classesRow');
+      if(data.classes&&data.classes.length>0){
+        classesRow.style.display='flex';
+        document.getElementById('inspect-classes').textContent=data.classes.join(', ');
+      }else{
+        classesRow.style.display='none';
+      }
+      
+      // Show params if available
+      var paramsRow=document.getElementById('inspect-paramsRow');
+      if(data.params&&Object.keys(data.params).length>0){
+        paramsRow.style.display='flex';
+        var paramsHtml='';
+        for(var k in data.params){
+          paramsHtml+='<div style="margin:2px 0"><strong>'+k+'</strong>: '+data.params[k]+'</div>';
         }
+        document.getElementById('inspect-params').innerHTML=paramsHtml;
+      }else{
+        paramsRow.style.display='none';
+      }
+      
+      inspectionCard.style.display='block';
+      
+      // B1: Build feature editor table
+      buildFeatureEditor(data.feature_names, data.n_features);
+      
+      // Store inspection data for later
+      window.inspectionData=data;
+      
+      // Update form defaults
+      document.getElementById('inp-type').value=data.task||'classification';
+      
+      // Set feature names from inspection if not already filled
+      var featInp=document.getElementById('inp-features');
+      if(!featInp.value.trim()&&data.feature_names){
+        featInp.value=data.feature_names.join(', ');
+      }
+      
+      verifyBox.className='verify-box ok show';
+      verifyBox.innerHTML='<i data-lucide="check-circle" style="width:16px;height:16px;color:var(--green)"></i><span>✓ '+data.model_class+' with '+data.n_features+' features detected</span>';
+      
+      submitBtn.disabled=false;
+      showToast('Model validated','success',data.model_class+' · '+data.n_features+' features');
+      lucide.createIcons();
+    })
+    .catch(function(e){
+      // A4: Show red error card
+      inspectionCard.style.display='none';
+      document.getElementById('featureEditor').style.display='none';
+      verifyBox.className='verify-box err show';
+      verifyBox.innerHTML='<i data-lucide="alert-circle" style="width:16px;height:16px"></i><span>✗ '+e.message+'</span>';
+      submitBtn.disabled=true;
+      showToast('Validation failed','error',e.message);
+      lucide.createIcons();
+    });
+}
 
-        var classInfo=data.classes&&data.classes.length
-          ?' · Classes: '+data.classes.join(', ')
-          :'';
-        var msg='✓ '+data.model_type
-          +' · '+(data.n_features||'?')+' input features'
-          +classInfo;
+// B1: Build feature names editor table
+function buildFeatureEditor(featureNames, nFeatures){
+  var tbody=document.getElementById('featureTableBody');
+  tbody.innerHTML='';
+  
+  if(!featureNames)featureNames=[];
+  if(!nFeatures)nFeatures=featureNames.length;
+  
+  for(var i=0;i<nFeatures;i++){
+    var currentName=featureNames[i]||'feature_'+i;
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+(i+1)+'</td>'
+      +'<td style="font-family:var(--mono);color:var(--text-2)">'+currentName+'</td>'
+      +'<td><input type="text" class="feature-input" id="feat-rename-'+i+'" value="'+currentName+'" data-index="'+i+'"></td>';
+    tbody.appendChild(tr);
+  }
+  
+  document.getElementById('featureEditor').style.display='block';
+  lucide.createIcons();
+}
 
-        vb.className='verify-box ok show';
-        document.getElementById('verifyMsg').textContent=msg;
-        btn.className='btn-validate valid';
-        btn.innerHTML='<i data-lucide="check" style="width:15px;height:15px"></i> Model validated';
-        document.getElementById('aiGenBtn').style.display='inline-flex';
-        submitBtn.disabled=false;
-        showToast('Model validated','success',data.model_type+' · '+(data.n_features||'?')+' features');
-        lucide.createIcons();
-      })
-      .catch(function(e){
-        vb.className='verify-box err show';
-        document.getElementById('verifyMsg').textContent='✗ '+e.message;
-        btn.className='btn-validate invalid';
-        btn.innerHTML='<i data-lucide="x" style="width:15px;height:15px"></i> Validation failed — retry';
-        submitBtn.disabled=true;
-        showToast('Model validation failed','error',e.message);
-        lucide.createIcons();
-      });
+// B2: Test prediction setup
+function testPrediction(){
+  var inputs=document.querySelectorAll('.feature-input');
+  var nFeatures=inputs.length;
+  
+  var container=document.getElementById('testInputsContainer');
+  container.innerHTML='';
+  
+  for(var i=0;i<nFeatures;i++){
+    var feat=inputs[i].value;
+    var div=document.createElement('div');
+    div.className='test-input-group';
+    div.innerHTML='<label>'+feat+'</label><input type="number" class="test-feat-input" data-index="'+i+'" value="0" step="0.01">';
+    container.appendChild(div);
+  }
+  
+  document.getElementById('testPredictionCard').style.display='block';
+  document.getElementById('testResult').style.display='none';
+  lucide.createIcons();
+}
 
-  } else {
+function runTestPrediction(){
+  var inputs=document.querySelectorAll('.test-feat-input');
+  var features=Array.from(inputs).map(function(x){return parseFloat(x.value)||0});
+  
+  // Store updated feature names from editor
+  var featureNames=Array.from(document.querySelectorAll('.feature-input')).map(function(x){return x.value});
+  document.getElementById('inp-features').value=featureNames.join(', ');
+  
+  var btn=event.target;
+  btn.disabled=true;
+  btn.innerHTML='<div class="spinner"></div> Testing...';
+  
+  var result=document.getElementById('testResult');
+  result.style.display='none';
+  
+  // For local testing, show mock result
+  if(!apiBaseUrl){
+    setTimeout(function(){
+      result.innerHTML='✓ Test prediction OK<br>'+featureNames.join(', ')+' → [sample output]';
+      result.style.display='block';
+      btn.disabled=false;
+      btn.innerHTML='<i data-lucide="zap" style="width:14px;height:14px"></i> Run Test';
+      lucide.createIcons();
+    }, 400);
+  }
+}
     btn.className='btn-validate validating';
     btn.innerHTML='<div class="spinner"></div> Analysing model...';
     vb.className='verify-box loading show';
