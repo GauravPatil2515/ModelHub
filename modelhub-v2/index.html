@@ -1473,12 +1473,12 @@ function renderModelPage(id) {
   var inputsHtml = '';
   var defaults = {
     // Cancer (30 features)
-    'mean radius': '14', 'mean texture': '20', 'mean perimeter': '90', 'mean area': '550', 'mean smoothness': '0.1',
-    'mean compactness': '0.15', 'mean concavity': '0.05', 'mean concave points': '0.02', 'mean symmetry': '0.18', 'mean fractal dimension': '0.06',
-    'radius error': '0.4', 'texture error': '1.2', 'perimeter error': '3',  'area error': '25', 'smoothness error': '0.005',
-    'compactness error': '0.01', 'concavity error': '0.02', 'concave points error': '0.005', 'symmetry error': '0.015', 'fractal dimension error': '0.002',
-    'worst radius': '16', 'worst texture': '25', 'worst perimeter': '105', 'worst area': '700', 'worst smoothness': '0.13',
-    'worst compactness': '0.25', 'worst concavity': '0.08', 'worst concave points': '0.04', 'worst symmetry': '0.3', 'worst fractal dimension': '0.08',
+    'mean_radius': '14', 'mean_texture': '20', 'mean_perimeter': '90', 'mean_area': '550', 'mean_smoothness': '0.1',
+    'mean_compactness': '0.15', 'mean_concavity': '0.05', 'mean_concave_points': '0.02', 'mean_symmetry': '0.18', 'mean_fractal_dimension': '0.06',
+    'radius_error': '0.4', 'texture_error': '1.2', 'perimeter_error': '3',  'area_error': '25', 'smoothness_error': '0.005',
+    'compactness_error': '0.01', 'concavity_error': '0.02', 'concave_points_error': '0.005', 'symmetry_error': '0.015', 'fractal_dimension_error': '0.002',
+    'worst_radius': '16', 'worst_texture': '25', 'worst_perimeter': '105', 'worst_area': '700', 'worst_smoothness': '0.13',
+    'worst_compactness': '0.25', 'worst_concavity': '0.08', 'worst_concave_points': '0.04', 'worst_symmetry': '0.3', 'worst_fractal_dimension': '0.08',
     // AQI (6 features)
     'co': '3.5', 'no2': '45', 'o3': '80', 'pm25': '55', 'temp': '32', 'humidity': '65',
     // Churn (5 features)
@@ -1487,7 +1487,7 @@ function renderModelPage(id) {
     'age': '0.05', 'sex': '-0.04', 'bmi': '0.06', 'bp': '0.02', 's1': '-0.04', 's2': '-0.03', 's3': '-0.04', 's4': '-0.04', 's5': '-0.02', 's6': '-0.01',
     // Wine (13 features)
     'alcohol': '13', 'malic_acid': '2', 'ash': '2.3', 'alcalinity_of_ash': '16', 'magnesium': '100', 'total_phenols': '2.3', 'flavanoids': '2.6',
-    'nonflavanoid_phenols': '0.3', 'proanthocyanins': '1.6', 'color_intensity': '5.1', 'hue': '1.2', 'od280/od315_of_diluted_wines': '3', 'proline': '750'
+    'nonflavanoid_phenols': '0.3', 'proanthocyanins': '1.6', 'color_intensity': '5.1', 'hue': '1.2', 'od280_od315_of_diluted_wines': '3', 'proline': '750'
   };
   features.forEach(function(f) {
     inputsHtml += '<div class="form-group">'
@@ -1543,6 +1543,7 @@ function toggleMode(){
 
 function runInference(){
   var m=models.find(function(x){return x.id===currentModelId});
+  console.log('[runInference] currentModelId='+currentModelId+', model found='+!!m);
   if(!m)return;
   // FIX C4: Validate all fields are filled
   var inp={};
@@ -1555,6 +1556,7 @@ function runInference(){
     inp[f]=val;
     features.push(val);
   });
+  console.log('[runInference] extracted features: count='+features.length+', values=['+features.join(',')+']');
   if(!allFilled){
     showToast('Fill all fields','error','Some inputs are empty');
     return;
