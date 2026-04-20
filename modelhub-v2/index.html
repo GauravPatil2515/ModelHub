@@ -1580,9 +1580,19 @@ function runInference(){
     }
     // FIX A4: Use correct endpoint /api/predict with new format
     var url=apiBaseUrl+'/api/predict';
+    console.log('[runInference] Sending predict request:', {model_id:currentModelId, features_count:features.length, features:features});
     fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model_id:currentModelId,features:features})})
     .then(function(r){return r.json()})
     .then(function(data){
+      // Check for API error response
+      if(data.error){
+        console.error('[runInference] API error:', data.error);
+        showResultError('Backend error: '+data.error);
+        btn.classList.remove('loading');
+        btn.innerHTML='<i data-lucide="zap" style="width:15px;height:15px"></i> Run Model';
+        lucide.createIcons();
+        return;
+      }
       // Extract prediction value (handle both regression and classification)
       var pred=(data.prediction!==undefined && data.prediction!==null) ? data.prediction : data.result;
       
@@ -1626,6 +1636,7 @@ function runInference(){
       lucide.createIcons();
     })
     .catch(function(e){
+      console.error('[runInference] Network/fetch error:', e);
       showResultError('Cannot reach backend: '+e.message);
       btn.classList.remove('loading');
       btn.innerHTML='<i data-lucide="zap" style="width:15px;height:15px"></i> Run Model';
