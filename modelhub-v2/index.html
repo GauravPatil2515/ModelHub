@@ -618,6 +618,18 @@ img,svg{display:block;max-width:100%}
   overflow-x:auto;white-space:nowrap;
 }
 .api-health-strip::-webkit-scrollbar{display:none}
+.health-toggle-btn{
+  display:flex;align-items:center;justify-content:center;
+  width:20px;height:20px;
+  padding:0;margin:0 2px 0 -4px;
+  background:transparent;border:none;
+  color:var(--text-3);cursor:pointer;
+  flex-shrink:0;transition:all 200ms ease;
+}
+.health-toggle-btn:hover{color:var(--text);background:var(--bg-hover);border-radius:var(--r-sm)}
+.health-toggle-btn svg{transition:transform 200ms ease}
+.health-text-expanded{display:flex;gap:var(--s4);align-items:center;overflow-x:auto}
+.health-text-collapsed{max-width:0;overflow:hidden;opacity:0;transition:all 200ms ease}
 .health-item{display:flex;align-items:center;gap:5px}
 .health-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0}
 @media(max-width:640px){
@@ -877,7 +889,10 @@ img,svg{display:block;max-width:100%}
     />
   </div>
   <div class="api-health-strip" id="apiHealthStrip" style="display:none">
-    <span id="healthText"></span>
+    <button class="health-toggle-btn" id="healthToggleBtn" onclick="toggleHealthStrip()" title="Collapse/expand connection details">
+      <i data-lucide="chevron-down" style="width:14px;height:14px"></i>
+    </button>
+    <span id="healthText" class="health-text-expanded"></span>
   </div>
 </div>
 
@@ -1762,6 +1777,23 @@ function setApiStatus(state,text){
   else{btn.textContent='Connect';btn.className='api-connect-btn'}
 }
 
+function toggleHealthStrip(){
+  var healthText=document.getElementById('healthText');
+  var btn=document.getElementById('healthToggleBtn');
+  var isExpanded=healthText.classList.contains('health-text-expanded');
+  if(isExpanded){
+    healthText.classList.remove('health-text-expanded');
+    healthText.classList.add('health-text-collapsed');
+    btn.style.transform='rotate(-90deg)';
+    localStorage.setItem('healthStripCollapsed', 'true');
+  }else{
+    healthText.classList.remove('health-text-collapsed');
+    healthText.classList.add('health-text-expanded');
+    btn.style.transform='rotate(0deg)';
+    localStorage.setItem('healthStripCollapsed', 'false');
+  }
+}
+
 function connectToBackend(){
   var input=document.getElementById('apiUrlInput');
   var url=(input.value||'').trim().replace(/\/$/,'');
@@ -1835,6 +1867,20 @@ function showHealthStrip(data) {
       + item.label
       + '</span>';
   }).join('');
+
+  // Restore collapsed state from localStorage
+  var isCollapsed=localStorage.getItem('healthStripCollapsed')==='true';
+  var healthText=document.getElementById('healthText');
+  var btn=document.getElementById('healthToggleBtn');
+  if(isCollapsed){
+    healthText.classList.remove('health-text-expanded');
+    healthText.classList.add('health-text-collapsed');
+    btn.style.transform='rotate(-90deg)';
+  }else{
+    healthText.classList.remove('health-text-collapsed');
+    healthText.classList.add('health-text-expanded');
+    btn.style.transform='rotate(0deg)';
+  }
 
   strip.style.display = 'flex';
 }
