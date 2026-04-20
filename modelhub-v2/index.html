@@ -1285,6 +1285,7 @@ img,svg{display:block;max-width:100%}
           <div class="form-group">
             <label class="form-label">Accuracy / Score</label>
             <input type="text" class="form-input" id="inp-acc" placeholder="e.g. 97.2% or R²=0.91">
+            <div class="form-hint">Tip: Check your training script for accuracy score. Examples: wine: 100% | cancer: 95.6% | diabetes: R²=0.44</div>
           </div>
         </div>
         <div class="form-group">
@@ -2341,9 +2342,9 @@ function validateModel(){
       // Update form defaults
       document.getElementById('inp-type').value=data.task||'classification';
       
-      // Set feature names from inspection if not already filled
+      // FIX D: Auto-fill feature names textarea with real feature names from API
       var featInp=document.getElementById('inp-features');
-      if(!featInp.value.trim()&&data.feature_names){
+      if(data.feature_names&&data.feature_names.length>0){
         featInp.value=data.feature_names.join(', ');
       }
       
@@ -2387,19 +2388,36 @@ function buildFeatureEditor(featureNames, nFeatures){
   lucide.createIcons();
 }
 
-// B2: Test prediction setup
+// B2: Test prediction setup with real feature names and smart defaults
 function testPrediction(){
   var inputs=document.querySelectorAll('.feature-input');
   var nFeatures=inputs.length;
+  
+  // FIX B: Smart default values for known features
+  var defaultValues={
+    'alcohol':13.0,'malic_acid':2.0,'ash':2.3,'alcalinity_of_ash':16,
+    'magnesium':100,'total_phenols':2.3,'flavanoids':2.6,'nonflavanoid_phenols':0.3,
+    'proanthocyanins':1.6,'color_intensity':5.1,'hue':1.2,'od280_od315_of_diluted_wines':3,'proline':750,
+    'mean_radius':14.0,'mean_texture':20.0,'mean_perimeter':90,'mean_area':550,'mean_smoothness':0.1,
+    'mean_compactness':0.15,'mean_concavity':0.05,'mean_concave_points':0.02,'mean_symmetry':0.18,'mean_fractal_dimension':0.06,
+    'radius_error':0.4,'texture_error':1.2,'perimeter_error':3,'area_error':25,'smoothness_error':0.005,
+    'compactness_error':0.01,'concavity_error':0.02,'concave_points_error':0.005,'symmetry_error':0.015,'fractal_dimension_error':0.002,
+    'worst_radius':16,'worst_texture':25,'worst_perimeter':105,'worst_area':700,'worst_smoothness':0.13,
+    'worst_compactness':0.25,'worst_concavity':0.08,'worst_concave_points':0.04,'worst_symmetry':0.3,'worst_fractal_dimension':0.08,
+    'age':0.05,'sex':-0.04,'bmi':0.06,'bp':0.02,'s1':-0.04,'s2':-0.03,'s3':-0.04,'s4':-0.04,'s5':-0.02,'s6':-0.01,
+    'tenure':12,'monthly_charges':65,'total_charges':780,'num_products':2,'support_calls':1,
+    'co':3.5,'no2':45,'o3':80,'pm25':55,'temperature':32,'humidity':65
+  };
   
   var container=document.getElementById('testInputsContainer');
   container.innerHTML='';
   
   for(var i=0;i<nFeatures;i++){
     var feat=inputs[i].value;
+    var defaultVal=defaultValues[feat]||0;
     var div=document.createElement('div');
     div.className='test-input-group';
-    div.innerHTML='<label>'+feat+'</label><input type="number" class="test-feat-input" data-index="'+i+'" value="0" step="0.01">';
+    div.innerHTML='<label>'+feat+'</label><input type="number" class="test-feat-input" data-index="'+i+'" value="'+defaultVal+'" step="0.01" placeholder="'+defaultVal+'">';
     container.appendChild(div);
   }
   
@@ -2410,7 +2428,7 @@ function testPrediction(){
 
 function runTestPrediction(){
   var inputs=document.querySelectorAll('.test-feat-input');
-  var features=Array.from(inputs).map(function(x){return parseFloat(x.value)||0});
+  var features=Array.from(inputs).map(function(x){return parseFloat(x.value)||parseFloat(x.placeholder)||0});
   
   // Store updated feature names from editor
   var featureNames=Array.from(document.querySelectorAll('.feature-input')).map(function(x){return x.value});
